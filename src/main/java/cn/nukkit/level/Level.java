@@ -262,6 +262,8 @@ public class Level implements ChunkManager, Metadatable {
 		this.temporalPosition = new Position(0, 0, 0, this);
 		this.temporalVector = new Vector3(0, 0, 0);
 		this.tickRate = 1;
+		if (this.server.netherEnabled && this.server.netherName.equals(this.folderName))
+			this.dimension = DIMENSION_NETHER;
 	}
 
 	public static String chunkHash(int x, int z) {

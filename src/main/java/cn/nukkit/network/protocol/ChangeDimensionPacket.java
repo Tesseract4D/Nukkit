@@ -10,10 +10,6 @@ public class ChangeDimensionPacket extends DataPacket {
 
     public byte dimension;
 
-    public float x;
-    public float y;
-    public float z;
-
     @Override
     public void decode() {
 
@@ -23,9 +19,6 @@ public class ChangeDimensionPacket extends DataPacket {
     public void encode() {
         this.reset();
         this.putByte(dimension);
-        this.putFloat(x);
-        this.putFloat(y);
-        this.putFloat(z);
         this.putByte((byte) 0);
     }
 

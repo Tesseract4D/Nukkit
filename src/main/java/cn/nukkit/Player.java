@@ -186,6 +186,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     private final AtomicReference<Locale> locale = new AtomicReference<>(null);
 
     private int hash;
+    protected boolean shouldSendStatus;
 
     public TranslationContainer getLeaveMessage() {
         return new TranslationContainer(TextFormat.YELLOW + "%multiplayer.player.left", this.getDisplayName());
@@ -492,7 +493,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
     }
 
     @Override
-    protected boolean switchLevel(Level targetLevel) {
+    public boolean switchLevel(Level targetLevel) {
         Level oldLevel = this.level;
         if (super.switchLevel(targetLevel)) {
             for (String index : new ArrayList<>(this.usedChunks.keySet())) {
@@ -507,6 +508,17 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             pk.time = this.level.getTime();
             pk.started = !this.level.stopTime;
             this.dataPacket(pk);
+            targetLevel.sendWeather(this);
+            if (targetLevel.getDimension() != oldLevel.getDimension()) {
+                ChangeDimensionPacket p = new ChangeDimensionPacket();
+                p.dimension = (byte) targetLevel.getDimension();
+                this.dataPacket(p);
+                this.shouldSendStatus = true;
+            }
+
+            if (this.spawned) {
+                this.spawnToAll();
+            }
             return true;
         }
         return false;
@@ -596,12 +608,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         int count = 0;
 
         List<Map.Entry<String, Integer>> entryList = new ArrayList<>(this.loadQueue.entrySet());
-        entryList.sort(new Comparator<Map.Entry<String, Integer>>() {
-            @Override
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                return o1.getValue() - o2.getValue();
-            }
-        });
+        entryList.sort(Comparator.comparingInt(Map.Entry::getValue));
 
         for (Map.Entry<String, Integer> entry : entryList) {
             String index = entry.getKey();
@@ -633,6 +640,13 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             if (!ev.isCancelled()) {
                 this.level.requestChunk(chunkX, chunkZ, this);
             }
+            if (this.loadQueue.isEmpty() && this.shouldSendStatus) {
+                this.shouldSendStatus = false;
+
+                PlayStatusPacket pk = new PlayStatusPacket();
+                pk.status = PlayStatusPacket.PLAYER_SPAWN;
+                this.dataPacket(pk);
+            }
         }
 
         if (this.chunkLoadCount >= this.spawnThreshold && !this.spawned && this.teleportPosition == null) {
@@ -640,7 +654,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         }
     }
 
-    protected void doFirstSpawn() {
+    public void doFirstSpawn() {
 
         this.spawned = true;
 
@@ -686,7 +700,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
 
         this.server.getPluginManager().callEvent(playerJoinEvent);
 
-        if (playerJoinEvent.getJoinMessage().toString().trim().length() > 0) {
+        if (!playerJoinEvent.getJoinMessage().toString().trim().isEmpty()) {
             this.server.broadcastMessage(playerJoinEvent.getJoinMessage());
         }
 

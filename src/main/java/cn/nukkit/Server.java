@@ -80,6 +80,8 @@ public class Server {
     public static final String BROADCAST_CHANNEL_USERS = "nukkit.broadcast.user";
 
     private static Server instance = null;
+    public boolean netherEnabled = true;
+    public String netherName = "nether";
 
     private BanList banByName = null;
 
@@ -176,6 +178,7 @@ public class Server {
     private Map<Integer, Level> levels = new HashMap<>();
 
     private Level defaultLevel = null;
+    private Level netherLevel = null;
 
     public Server(MainLogger logger, final String filePath, String dataPath, String pluginPath) {
         instance = this;
@@ -418,7 +421,7 @@ public class Server {
                 long seed;
                 String seedString = String.valueOf(this.getProperty("level-seed", System.currentTimeMillis()));
                 try {
-                    seed = Long.valueOf(seedString);
+                    seed = Long.parseLong(seedString);
                 } catch (NumberFormatException e) {
                     seed = seedString.hashCode();
                 }
@@ -428,6 +431,19 @@ public class Server {
             this.setDefaultLevel(this.getLevelByName(defaultName));
         }
 
+        if (this.netherEnabled) {
+            if (!this.loadLevel(this.netherName)) {
+                long seed;
+                String seedString = String.valueOf(this.getProperty("level-seed", System.currentTimeMillis()));
+                try {
+                    seed = Long.parseLong(seedString);
+                } catch (NumberFormatException e) {
+                    seed = seedString.hashCode();
+                }
+                this.generateLevel(this.netherName, seed == 0 ? System.currentTimeMillis() : seed, Generator.getGenerator("default"));
+            }
+            this.netherLevel = this.getLevelByName(this.netherName);
+        }
         this.properties.save(true);
 
         if (this.getDefaultLevel() == null) {

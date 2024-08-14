@@ -80,7 +80,7 @@ public class BlockGrass extends BlockDirt {
             Block block = lv.getBlock(new Vector3(this.x, this.y, this.z));
             int u = (int) this.x, v = (int) this.y, w = (int) this.z;
             int light = lv.getLightAt(u, v, w);
-            if (light < 4 || lv.getBlock(new Vector3(this.x, this.y + 1, this.z)).isSolid()) {
+            if (light < 4 || !(lv.getBlock(new Vector3(this.x, this.y + 1, this.z)) instanceof BlockTransparent)) {
                 BlockSpreadEvent ev = new BlockSpreadEvent(block, this, new BlockDirt());
                 Server.getInstance().getPluginManager().callEvent(ev);
                 if (!ev.isCancelled()) {
@@ -93,7 +93,7 @@ public class BlockGrass extends BlockDirt {
                     int y = random.nextRange(v - 2, v + 2);
                     int z = random.nextRange(w - 1, w + 1);
                     Block blocks = lv.getBlock(new Vector3(x, y, z));
-                    if (blocks.getId() == Block.DIRT && blocks.getDamage() == 0 && lv.getLightAt(x, y, z) >= 4 && !blocks.getSide(1).isSolid()) {
+                    if (blocks.getId() == Block.DIRT && blocks.getDamage() == 0 && lv.getLightAt(x, y, z) >= 4 && !(blocks.getSide(1) instanceof BlockTransparent)) {
                         BlockSpreadEvent ev = new BlockSpreadEvent(blocks, this, new BlockGrass());
                         Server.getInstance().getPluginManager().callEvent(ev);
                         if (!ev.isCancelled()) {
