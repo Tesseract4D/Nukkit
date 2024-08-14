@@ -129,9 +129,6 @@ public class Normal extends Generator {
         PopulatorGroundCover cover = new PopulatorGroundCover();
         this.generationPopulators.add(cover);
 
-        PopulatorCaves caves = new PopulatorCaves();
-        this.populators.add(caves);
-
         PopulatorOre ores = new PopulatorOre();
         ores.setOreTypes(new OreType[]{
                 new OreType(new BlockOreCoal(), 20, 16, 0, 128),

@@ -2022,17 +2022,13 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                             item.setCount(item.getCount() - 1);
                             this.inventory.setItemInHand(item.getCount() > 0 ? item : Item.get(Item.AIR));
                         }
-                        if (snowball instanceof EntityProjectile) {
-                            ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(snowball);
-                            this.server.getPluginManager().callEvent(projectileLaunchEvent);
-                            if (projectileLaunchEvent.isCancelled()) {
-                                snowball.kill();
-                            } else {
-                                snowball.spawnToAll();
-                                this.level.addSound(new LaunchSound(this), this.getViewers().values());
-                            }
+                        ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(snowball);
+                        this.server.getPluginManager().callEvent(projectileLaunchEvent);
+                        if (projectileLaunchEvent.isCancelled()) {
+                            snowball.kill();
                         } else {
                             snowball.spawnToAll();
+                            this.level.addSound(new LaunchSound(this), this.getViewers().values());
                         }
                     } else if (item.getId() == Item.EGG) {
                         CompoundTag nbt = new CompoundTag()
@@ -2059,17 +2055,13 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                             item.setCount(item.getCount() - 1);
                             this.inventory.setItemInHand(item.getCount() > 0 ? item : Item.get(Item.AIR));
                         }
-                        if (egg instanceof EntityProjectile) {
-                            ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(egg);
-                            this.server.getPluginManager().callEvent(projectileLaunchEvent);
-                            if (projectileLaunchEvent.isCancelled()) {
-                                egg.kill();
-                            } else {
-                                egg.spawnToAll();
-                                this.level.addSound(new LaunchSound(this), this.getViewers().values());
-                            }
+                        ProjectileLaunchEvent projectileLaunchEvent = new ProjectileLaunchEvent(egg);
+                        this.server.getPluginManager().callEvent(projectileLaunchEvent);
+                        if (projectileLaunchEvent.isCancelled()) {
+                            egg.kill();
                         } else {
                             egg.spawnToAll();
+                            this.level.addSound(new LaunchSound(this), this.getViewers().values());
                         }
                     } else if (item.getId() == Item.EXPERIENCE_BOTTLE) {
                         CompoundTag nbt = new CompoundTag()
@@ -2086,24 +2078,19 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                                         .add(new FloatTag("", (float) pitch)))
                                 .putInt("Potion", item.getDamage());
                         double f = 1.5;
-                        Entity bottle = new EntityExpBottle(this.chunk, nbt, this);
+                        EntityProjectile bottle = new EntityExpBottle(this.chunk, nbt, this);
                         bottle.setMotion(bottle.getMotion().multiply(f));
                         if (this.isSurvival()) {
                             item.setCount(item.getCount() - 1);
                             this.inventory.setItemInHand(item.getCount() > 0 ? item : Item.get(Item.AIR));
                         }
-                        if (bottle instanceof EntityProjectile) {
-                            EntityProjectile bottleEntity = (EntityProjectile) bottle;
-                            ProjectileLaunchEvent projectileEv = new ProjectileLaunchEvent(bottleEntity);
-                            this.server.getPluginManager().callEvent(projectileEv);
-                            if (projectileEv.isCancelled()) {
-                                bottle.kill();
-                            } else {
-                                bottle.spawnToAll();
-                                this.level.addSound(new LaunchSound(this), this.getViewers().values());
-                            }
+                        ProjectileLaunchEvent projectileEv = new ProjectileLaunchEvent(bottle);
+                        this.server.getPluginManager().callEvent(projectileEv);
+                        if (projectileEv.isCancelled()) {
+                            bottle.kill();
                         } else {
                             bottle.spawnToAll();
+                            this.level.addSound(new LaunchSound(this), this.getViewers().values());
                         }
                     } else if (item.getId() == Item.SPLASH_POTION) {
                         CompoundTag nbt = new CompoundTag()
@@ -2120,24 +2107,19 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                                         .add(new FloatTag("", (float) pitch)))
                                 .putShort("PotionId", item.getDamage());
                         double f = 1.5;
-                        Entity bottle = new EntityPotion(this.chunk, nbt, this);
+                        EntityPotion bottle = new EntityPotion(this.chunk, nbt, this);
                         bottle.setMotion(bottle.getMotion().multiply(f));
                         if (this.isSurvival()) {
                             item.setCount(item.getCount() - 1);
                             this.inventory.setItemInHand(item.getCount() > 0 ? item : Item.get(Item.AIR));
                         }
-                        if (bottle instanceof EntityPotion) {
-                            EntityPotion bottleEntity = (EntityPotion) bottle;
-                            ProjectileLaunchEvent projectileEv = new ProjectileLaunchEvent(bottleEntity);
-                            this.server.getPluginManager().callEvent(projectileEv);
-                            if (projectileEv.isCancelled()) {
-                                bottle.kill();
-                            } else {
-                                bottle.spawnToAll();
-                                this.level.addSound(new LaunchSound(this), this.getViewers().values());
-                            }
+                        ProjectileLaunchEvent projectileEv = new ProjectileLaunchEvent(bottle);
+                        this.server.getPluginManager().callEvent(projectileEv);
+                        if (projectileEv.isCancelled()) {
+                            bottle.kill();
                         } else {
                             bottle.spawnToAll();
+                            this.level.addSound(new LaunchSound(this), this.getViewers().values());
                         }
                     }
 
@@ -2226,7 +2208,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                                             this.inventory.setItemInHand(bow);
                                         }
                                     }
-                                    if (entityShootBowEvent.getProjectile() instanceof EntityProjectile) {
+                                    if (entityShootBowEvent.getProjectile() != null) {
                                         ProjectileLaunchEvent projectev = new ProjectileLaunchEvent(entityShootBowEvent.getProjectile());
                                         this.server.getPluginManager().callEvent(projectev);
                                         if (projectev.isCancelled()) {
