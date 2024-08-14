@@ -20,7 +20,6 @@ import cn.nukkit.event.weather.LightningStrikeEvent;
 import cn.nukkit.inventory.InventoryHolder;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.ItemBlock;
-import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.level.format.Chunk;
 import cn.nukkit.level.format.ChunkSection;
 import cn.nukkit.level.format.FullChunk;
@@ -41,7 +40,6 @@ import cn.nukkit.nbt.NBTIO;
 import cn.nukkit.nbt.tag.*;
 import cn.nukkit.network.protocol.*;
 import cn.nukkit.plugin.Plugin;
-import cn.nukkit.potion.Effect;
 import cn.nukkit.redstone.Redstone;
 import cn.nukkit.scheduler.AsyncTask;
 import cn.nukkit.utils.*;
@@ -1979,6 +1977,11 @@ public class Level implements ChunkManager, Metadatable {
 
 	public void setBlockLightAt(int x, int y, int z, int level) {
 		this.getChunk(x >> 4, z >> 4, true).setBlockLight(x & 0x0f, y & 0x7f, z & 0x0f, level & 0x0f);
+	}
+
+	public int getLightAt(int x, int y, int z) {
+		BaseFullChunk c = this.getChunk(x >> 4, z >> 4, true);
+		return Math.max(c.getBlockLight(x & 0x0f, y & 0x7f, z & 0x0f), c.getBlockSkyLight(x & 0x0f, y & 0x7f, z & 0x0f));
 	}
 
 	public int getBiomeId(int x, int z) {

@@ -76,22 +76,28 @@ public class BlockGrass extends BlockDirt {
     @Override
     public int onUpdate(int type) {
         if (type == Level.BLOCK_UPDATE_RANDOM) {
-            Block block = this.getLevel().getBlock(new Vector3(this.x, this.y, this.z));
-            if (block.getSide(1).getLightLevel() < 4) {
+            Level lv = this.getLevel();
+            Block block = lv.getBlock(new Vector3(this.x, this.y, this.z));
+            int u = (int) this.x, v = (int) this.y, w = (int) this.z;
+            int light = lv.getLightAt(u, v, w);
+            if (light < 4 || lv.getBlock(new Vector3(this.x, this.y + 1, this.z)).isSolid()) {
                 BlockSpreadEvent ev = new BlockSpreadEvent(block, this, new BlockDirt());
                 Server.getInstance().getPluginManager().callEvent(ev);
-            } else if (block.getSide(1).getLightLevel() >= 9) {
+                if (!ev.isCancelled()) {
+                    lv.setBlock(this, ev.getNewState());
+                }
+            } else if (light >= 9) {
                 for (int l = 0; l < 4; ++l) {
                     NukkitRandom random = new NukkitRandom();
-                    int x = random.nextRange((int) this.x - 1, (int) this.x + 1);
-                    int y = random.nextRange((int) this.y - 2, (int) this.y + 2);
-                    int z = random.nextRange((int) this.z - 1, (int) this.z + 1);
-                    Block blocks = this.getLevel().getBlock(new Vector3(x, y, z));
-                    if (blocks.getId() == Block.DIRT && blocks.getDamage() == 0x0F && blocks.getSide(1).getLightLevel() >= 4 && blocks.z <= 2) {
+                    int x = random.nextRange(u - 1, u + 1);
+                    int y = random.nextRange(v - 2, v + 2);
+                    int z = random.nextRange(w - 1, w + 1);
+                    Block blocks = lv.getBlock(new Vector3(x, y, z));
+                    if (blocks.getId() == Block.DIRT && blocks.getDamage() == 0 && lv.getLightAt(x, y, z) >= 4 && !blocks.getSide(1).isSolid()) {
                         BlockSpreadEvent ev = new BlockSpreadEvent(blocks, this, new BlockGrass());
                         Server.getInstance().getPluginManager().callEvent(ev);
                         if (!ev.isCancelled()) {
-                            this.getLevel().setBlock(blocks, ev.getNewState());
+                            lv.setBlock(blocks, ev.getNewState());
                         }
                     }
                 }
