@@ -1,4 +1,4 @@
-package cn.nukkit.level.generator.populator;
+package cn.nukkit.level.generator.structures;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
@@ -9,7 +9,7 @@ import cn.nukkit.math.NukkitRandom;
  * author: MagicDroidX
  * Nukkit Project
  */
-public class PopulatorTallGrass extends Populator {
+public class StructureTallGrass extends Structure {
     private ChunkManager level;
     private int randomAmount;
     private int baseAmount;
@@ -23,7 +23,7 @@ public class PopulatorTallGrass extends Populator {
     }
 
     @Override
-    public void populate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
+    public void generate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
         this.level = level;
         int amount = random.nextBoundedInt(this.randomAmount + 1) + this.baseAmount;
         for (int i = 0; i < amount; ++i) {

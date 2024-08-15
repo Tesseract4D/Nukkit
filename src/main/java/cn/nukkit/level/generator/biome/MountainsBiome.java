@@ -1,8 +1,8 @@
 package cn.nukkit.level.generator.biome;
 
-import cn.nukkit.level.generator.populator.PopulatorGrass;
-import cn.nukkit.level.generator.populator.PopulatorTallGrass;
-import cn.nukkit.level.generator.populator.PopulatorTree;
+import cn.nukkit.level.generator.structures.StructureGrass;
+import cn.nukkit.level.generator.structures.StructureTallGrass;
+import cn.nukkit.level.generator.structures.StructureTree;
 
 /**
  * author: MagicDroidX
@@ -13,15 +13,15 @@ public class MountainsBiome extends GrassyBiome {
     public MountainsBiome() {
         super();
 
-        PopulatorTree tree = new PopulatorTree();
+        StructureTree tree = new StructureTree();
         tree.setBaseAmount(1);
         this.addPopulator(tree);
 
-        PopulatorGrass grass = new PopulatorGrass();
+        StructureGrass grass = new StructureGrass();
         grass.setBaseAmount(30);
         this.addPopulator(grass);
 
-        PopulatorTallGrass tallGrass = new PopulatorTallGrass();
+        StructureTallGrass tallGrass = new StructureTallGrass();
         tallGrass.setBaseAmount(1);
         this.addPopulator(tallGrass);
 

@@ -2,7 +2,7 @@ package cn.nukkit.level.generator.biome;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockFlower;
-import cn.nukkit.level.generator.populator.*;
+import cn.nukkit.level.generator.structures.*;
 
 /**
  * author: MagicDroidX
@@ -12,15 +12,15 @@ public class PlainBiome extends GrassyBiome {
 
     public PlainBiome() {
         super();
-        PopulatorSugarcane sugarcane = new PopulatorSugarcane();
+        StructureSugarcane sugarcane = new StructureSugarcane();
         sugarcane.setBaseAmount(6);
-        PopulatorTallSugarcane tallSugarcane = new PopulatorTallSugarcane();
+        StructureTallSugarcane tallSugarcane = new StructureTallSugarcane();
         tallSugarcane.setBaseAmount(60);
-        PopulatorGrass grass = new PopulatorGrass();
+        StructureGrass grass = new StructureGrass();
         grass.setBaseAmount(40);
-        PopulatorTallGrass tallGrass = new PopulatorTallGrass();
+        StructureTallGrass tallGrass = new StructureTallGrass();
         tallGrass.setBaseAmount(7);
-        PopulatorFlower flower = new PopulatorFlower();
+        StructureFlower flower = new StructureFlower();
         flower.setBaseAmount(10);
         flower.addType(Block.DANDELION, 0);
         flower.addType(Block.RED_FLOWER, BlockFlower.TYPE_POPPY);

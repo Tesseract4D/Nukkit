@@ -1,11 +1,11 @@
-package cn.nukkit.level.generator.populator;
+package cn.nukkit.level.generator.structures;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.NukkitRandom;
 
-public class PopulatorCactus extends Populator {
+public class StructureDeadBush extends Structure {
 
     /**
      * Author: Niall Lindsay <Niall7459>
@@ -24,7 +24,7 @@ public class PopulatorCactus extends Populator {
     }
 
     @Override
-    public void populate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
+    public void generate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
         this.level = level;
         int amount = random.nextBoundedInt(this.randomAmount + 1) + this.baseAmount;
         for (int i = 0; i < amount; ++i) {
@@ -32,16 +32,16 @@ public class PopulatorCactus extends Populator {
             int z = NukkitMath.randomRange(random, chunkZ * 16, chunkZ * 16 + 15);
             int y = this.getHighestWorkableBlock(x, z);
 
-            if (y != -1 && this.canCactusStay(x, y, z)) {
-                this.level.setBlockIdAt(x, y, z, Block.CACTUS);
+            if (y != -1 && this.canDeadBushStay(x, y, z)) {
+                this.level.setBlockIdAt(x, y, z, Block.DEAD_BUSH);
                 this.level.setBlockDataAt(x, y, z, 1);
             }
         }
     }
 
-    private boolean canCactusStay(int x, int y, int z) {
+    private boolean canDeadBushStay(int x, int y, int z) {
         int b = this.level.getBlockIdAt(x, y, z);
-        return (b == Block.AIR && this.level.getBlockIdAt(x, y - 1, z) == Block.SAND && this.level.getBlockIdAt(x + 1, y, z) == Block.AIR && this.level.getBlockIdAt(x - 1, y, z) == Block.AIR && this.level.getBlockIdAt(x, y, z + 1) == Block.AIR && this.level.getBlockIdAt(x, y, z - 1) == Block.AIR);
+        return (b == Block.AIR && this.level.getBlockIdAt(x, y - 1, z) == Block.SAND);
     }
 
     private int getHighestWorkableBlock(int x, int z) {

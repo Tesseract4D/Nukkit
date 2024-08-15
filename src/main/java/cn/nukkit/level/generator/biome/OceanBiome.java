@@ -1,8 +1,8 @@
 package cn.nukkit.level.generator.biome;
 
 import cn.nukkit.block.Block;
-import cn.nukkit.level.generator.populator.PopulatorSugarcane;
-import cn.nukkit.level.generator.populator.PopulatorTallSugarcane;
+import cn.nukkit.level.generator.structures.StructureSugarcane;
+import cn.nukkit.level.generator.structures.StructureTallSugarcane;
 
 /**
  * author: MagicDroidX
@@ -13,9 +13,9 @@ public class OceanBiome extends WateryBiome {
     public OceanBiome() {
         super();
 
-        PopulatorSugarcane sugarcane = new PopulatorSugarcane();
+        StructureSugarcane sugarcane = new StructureSugarcane();
         sugarcane.setBaseAmount(6);
-        PopulatorTallSugarcane tallSugarcane = new PopulatorTallSugarcane();
+        StructureTallSugarcane tallSugarcane = new StructureTallSugarcane();
         tallSugarcane.setBaseAmount(60);
         this.addPopulator(sugarcane);
         this.addPopulator(tallSugarcane);

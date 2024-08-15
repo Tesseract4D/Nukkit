@@ -2,7 +2,7 @@ package cn.nukkit.level.generator.biome;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
-import cn.nukkit.level.generator.populator.Populator;
+import cn.nukkit.level.generator.structures.Structure;
 import cn.nukkit.math.NukkitRandom;
 
 import java.util.ArrayList;
@@ -41,7 +41,7 @@ public abstract class Biome {
     private int id;
     private boolean registered = false;
 
-    private ArrayList<Populator> populators = new ArrayList<>();
+    private ArrayList<Structure> structures = new ArrayList<>();
 
     private int minElevation;
     private int maxElevation;
@@ -76,22 +76,22 @@ public abstract class Biome {
         return biomes.containsKey(id) ? biomes.get(id) : biomes.get(OCEAN);
     }
 
-    public void clearPopulators() {
-        this.populators.clear();
+    public void clearStructures() {
+        this.structures.clear();
     }
 
-    public void addPopulator(Populator populator) {
-        this.populators.add(populator);
+    public void addPopulator(Structure structure) {
+        this.structures.add(structure);
     }
 
     public void populateChunk(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
-        for (Populator populator : populators) {
-            populator.populate(level, chunkX, chunkZ, random);
+        for (Structure structure : structures) {
+            structure.generate(level, chunkX, chunkZ, random);
         }
     }
 
-    public ArrayList<Populator> getPopulators() {
-        return populators;
+    public ArrayList<Structure> getStructures() {
+        return structures;
     }
 
     public void setId(int id) {

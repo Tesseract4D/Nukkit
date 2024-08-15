@@ -6,8 +6,8 @@ import cn.nukkit.level.ChunkManager;
 import cn.nukkit.level.format.generic.BaseFullChunk;
 import cn.nukkit.level.generator.biome.Biome;
 import cn.nukkit.level.generator.object.ore.OreType;
-import cn.nukkit.level.generator.populator.Populator;
-import cn.nukkit.level.generator.populator.PopulatorOre;
+import cn.nukkit.level.generator.structures.Structure;
+import cn.nukkit.level.generator.structures.StructureOre;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
 
@@ -34,7 +34,7 @@ public class Flat extends Generator {
 
     private NukkitRandom random;
 
-    private List<Populator> populators = new ArrayList<>();
+    private List<Structure> structures = new ArrayList<>();
 
     private int[][] structure;
 
@@ -69,7 +69,7 @@ public class Flat extends Generator {
         this.chunk = null;
 
         if (this.options.containsKey("decoration")) {
-            PopulatorOre ores = new PopulatorOre();
+            StructureOre ores = new StructureOre();
             ores.setOreTypes(new OreType[]{
                     new OreType(new BlockOreCoal(), 20, 16, 0, 128),
                     new OreType(new BlockOreIron(), 20, 8, 0, 64),
@@ -80,7 +80,7 @@ public class Flat extends Generator {
                     new OreType(new BlockDirt(), 20, 32, 0, 128),
                     new OreType(new BlockGravel(), 20, 16, 0, 128),
             });
-            this.populators.add(ores);
+            this.structures.add(ores);
         }
     }
 
@@ -189,8 +189,8 @@ public class Flat extends Generator {
     @Override
     public void populateChunk(int chunkX, int chunkZ) {
         this.random.setSeed(0xdeadbeef ^ (chunkX << 8) ^ chunkZ ^ this.level.getSeed());
-        for (Populator populator : this.populators) {
-            populator.populate(this.level, chunkX, chunkZ, this.random);
+        for (Structure structure : this.structures) {
+            structure.generate(this.level, chunkX, chunkZ, this.random);
         }
     }
 

@@ -1,15 +1,16 @@
-package cn.nukkit.level.generator.populator;
+package cn.nukkit.level.generator.structures;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.NukkitRandom;
 
-/**
- * author: Angelic47
- * Nukkit Project
- */
-public class PopulatorGrass extends Populator {
+public class StructureCactus extends Structure {
+
+    /**
+     * Author: Niall Lindsay <Niall7459>
+     */
+
     private ChunkManager level;
     private int randomAmount;
     private int baseAmount;
@@ -23,7 +24,7 @@ public class PopulatorGrass extends Populator {
     }
 
     @Override
-    public void populate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
+    public void generate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
         this.level = level;
         int amount = random.nextBoundedInt(this.randomAmount + 1) + this.baseAmount;
         for (int i = 0; i < amount; ++i) {
@@ -31,16 +32,16 @@ public class PopulatorGrass extends Populator {
             int z = NukkitMath.randomRange(random, chunkZ * 16, chunkZ * 16 + 15);
             int y = this.getHighestWorkableBlock(x, z);
 
-            if (y != -1 && this.canGrassStay(x, y, z)) {
-                this.level.setBlockIdAt(x, y, z, Block.TALL_GRASS);
-                this.level.setBlockDataAt(x, y, z, 0);
+            if (y != -1 && this.canCactusStay(x, y, z)) {
+                this.level.setBlockIdAt(x, y, z, Block.CACTUS);
+                this.level.setBlockDataAt(x, y, z, 1);
             }
         }
     }
 
-    private boolean canGrassStay(int x, int y, int z) {
+    private boolean canCactusStay(int x, int y, int z) {
         int b = this.level.getBlockIdAt(x, y, z);
-        return (b == Block.AIR || b == Block.SNOW_LAYER) && this.level.getBlockIdAt(x, y - 1, z) == Block.GRASS;
+        return (b == Block.AIR && this.level.getBlockIdAt(x, y - 1, z) == Block.SAND && this.level.getBlockIdAt(x + 1, y, z) == Block.AIR && this.level.getBlockIdAt(x - 1, y, z) == Block.AIR && this.level.getBlockIdAt(x, y, z + 1) == Block.AIR && this.level.getBlockIdAt(x, y, z - 1) == Block.AIR);
     }
 
     private int getHighestWorkableBlock(int x, int z) {

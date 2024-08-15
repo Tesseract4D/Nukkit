@@ -3,8 +3,8 @@ package cn.nukkit.level.generator.biome;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockSand;
 import cn.nukkit.block.BlockSandstone;
-import cn.nukkit.level.generator.populator.PopulatorCactus;
-import cn.nukkit.level.generator.populator.PopulatorDeadBush;
+import cn.nukkit.level.generator.structures.StructureCactus;
+import cn.nukkit.level.generator.structures.StructureDeadBush;
 
 /**
  * author: MagicDroidX
@@ -13,10 +13,10 @@ import cn.nukkit.level.generator.populator.PopulatorDeadBush;
 public abstract class SandyBiome extends NormalBiome {
     public SandyBiome() {
 
-        PopulatorCactus cactus = new PopulatorCactus();
+        StructureCactus cactus = new StructureCactus();
         cactus.setBaseAmount(2);
 
-        PopulatorDeadBush deadbush = new PopulatorDeadBush();
+        StructureDeadBush deadbush = new StructureDeadBush();
         deadbush.setBaseAmount(2);
 
         this.addPopulator(cactus);

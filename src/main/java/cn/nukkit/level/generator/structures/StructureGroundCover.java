@@ -1,4 +1,4 @@
-package cn.nukkit.level.generator.populator;
+package cn.nukkit.level.generator.structures;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
@@ -10,10 +10,10 @@ import cn.nukkit.math.NukkitRandom;
  * author: MagicDroidX
  * Nukkit Project
  */
-public class PopulatorGroundCover extends Populator {
+public class StructureGroundCover extends Structure {
 
     @Override
-    public void populate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
+    public void generate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
         FullChunk chunk = level.getChunk(chunkX, chunkZ);
         for (int x = 0; x < 16; ++x) {
             for (int z = 0; z < 16; ++z) {

@@ -1,9 +1,9 @@
 package cn.nukkit.level.generator.biome;
 
 import cn.nukkit.block.BlockSapling;
-import cn.nukkit.level.generator.populator.PopulatorGrass;
-import cn.nukkit.level.generator.populator.PopulatorTallGrass;
-import cn.nukkit.level.generator.populator.PopulatorTree;
+import cn.nukkit.level.generator.structures.StructureGrass;
+import cn.nukkit.level.generator.structures.StructureTallGrass;
+import cn.nukkit.level.generator.structures.StructureTree;
 
 /**
  * author: MagicDroidX
@@ -25,15 +25,15 @@ public class ForestBiome extends GrassyBiome {
 
         this.type = type;
 
-        PopulatorTree trees = new PopulatorTree(type == TYPE_BIRCH ? BlockSapling.BIRCH : BlockSapling.OAK);
+        StructureTree trees = new StructureTree(type == TYPE_BIRCH ? BlockSapling.BIRCH : BlockSapling.OAK);
         trees.setBaseAmount(5);
         this.addPopulator(trees);
 
-        PopulatorGrass grass = new PopulatorGrass();
+        StructureGrass grass = new StructureGrass();
         grass.setBaseAmount(30);
         this.addPopulator(grass);
 
-        PopulatorTallGrass tallGrass = new PopulatorTallGrass();
+        StructureTallGrass tallGrass = new StructureTallGrass();
         tallGrass.setBaseAmount(3);
 
         this.addPopulator(tallGrass);

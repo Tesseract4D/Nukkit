@@ -1,9 +1,9 @@
 package cn.nukkit.level.generator.biome;
 
 import cn.nukkit.block.BlockSapling;
-import cn.nukkit.level.generator.populator.PopulatorGrass;
-import cn.nukkit.level.generator.populator.PopulatorTallGrass;
-import cn.nukkit.level.generator.populator.PopulatorTree;
+import cn.nukkit.level.generator.structures.StructureGrass;
+import cn.nukkit.level.generator.structures.StructureTallGrass;
+import cn.nukkit.level.generator.structures.StructureTree;
 
 /**
  * author: MagicDroidX
@@ -14,15 +14,15 @@ public class TaigaBiome extends SnowyBiome {
     public TaigaBiome() {
         super();
 
-        PopulatorGrass grass = new PopulatorGrass();
+        StructureGrass grass = new StructureGrass();
         grass.setBaseAmount(6);
         this.addPopulator(grass);
 
-        PopulatorTree trees = new PopulatorTree(BlockSapling.SPRUCE);
+        StructureTree trees = new StructureTree(BlockSapling.SPRUCE);
         trees.setBaseAmount(10);
         this.addPopulator(trees);
 
-        PopulatorTallGrass tallGrass = new PopulatorTallGrass();
+        StructureTallGrass tallGrass = new StructureTallGrass();
         tallGrass.setBaseAmount(1);
 
         this.addPopulator(tallGrass);

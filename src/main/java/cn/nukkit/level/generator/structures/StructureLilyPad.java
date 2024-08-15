@@ -1,16 +1,16 @@
-package cn.nukkit.level.generator.populator;
+package cn.nukkit.level.generator.structures;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.level.ChunkManager;
 import cn.nukkit.math.NukkitMath;
 import cn.nukkit.math.NukkitRandom;
 
-/**
- * Nukkit Minecraft PE Server Software
- * This class was written by Niall Lindsay <Niall7459>
- **/
+public class StructureLilyPad extends Structure {
 
-public class PopulatorTallSugarcane extends Populator {
+    /**
+     * Author: Niall Lindsay <Niall7459>
+     */
+
     private ChunkManager level;
     private int randomAmount;
     private int baseAmount;
@@ -24,7 +24,7 @@ public class PopulatorTallSugarcane extends Populator {
     }
 
     @Override
-    public void populate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
+    public void generate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
         this.level = level;
         int amount = random.nextBoundedInt(this.randomAmount + 1) + this.baseAmount;
         for (int i = 0; i < amount; ++i) {
@@ -32,23 +32,23 @@ public class PopulatorTallSugarcane extends Populator {
             int z = NukkitMath.randomRange(random, chunkZ * 16, chunkZ * 16 + 15);
             int y = this.getHighestWorkableBlock(x, z);
 
-            if (y != -1 && this.canSugarcaneStay(x, y, z)) {
-                this.level.setBlockIdAt(x, y, z, Block.SUGARCANE_BLOCK);
+            if (y != -1 && this.canLilyPadStay(x, y, z)) {
+                this.level.setBlockIdAt(x, y, z, Block.WATER_LILY);
                 this.level.setBlockDataAt(x, y, z, 1);
             }
         }
     }
 
-    private boolean canSugarcaneStay(int x, int y, int z) {
+    private boolean canLilyPadStay(int x, int y, int z) {
         int b = this.level.getBlockIdAt(x, y, z);
-        return (b == Block.AIR) && this.level.getBlockDataAt(x, y - 1, z) == Block.SUGARCANE_BLOCK;
+        return (b == Block.AIR || b == Block.SNOW_LAYER) && this.level.getBlockIdAt(x, y - 1, z) == Block.STILL_WATER;
     }
 
     private int getHighestWorkableBlock(int x, int z) {
         int y;
         for (y = 127; y >= 0; --y) {
             int b = this.level.getBlockIdAt(x, y, z);
-            if (b != Block.AIR && b != Block.LEAVES && b != Block.LEAVES2) {
+            if (b != Block.AIR && b != Block.LEAVES && b != Block.LEAVES2 && b != Block.SNOW_LAYER) {
                 break;
             }
         }

@@ -1,4 +1,4 @@
-package cn.nukkit.level.generator.populator;
+package cn.nukkit.level.generator.structures;
 
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockFlower;
@@ -16,7 +16,7 @@ import java.util.List;
  * Nukkit Project
  */
 
-public class PopulatorFlower extends Populator {
+public class StructureFlower extends Structure {
 
     private ChunkManager level;
     private int randomAmount;
@@ -44,7 +44,7 @@ public class PopulatorFlower extends Populator {
     }
 
     @Override
-    public void populate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
+    public void generate(ChunkManager level, int chunkX, int chunkZ, NukkitRandom random) {
         this.level = level;
         int amount = random.nextBoundedInt(this.randomAmount + 1) + this.baseAmount;
 

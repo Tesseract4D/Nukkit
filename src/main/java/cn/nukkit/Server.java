@@ -32,6 +32,7 @@ import cn.nukkit.level.format.leveldb.LevelDB;
 import cn.nukkit.level.format.mcregion.McRegion;
 import cn.nukkit.level.generator.Flat;
 import cn.nukkit.level.generator.Generator;
+import cn.nukkit.level.generator.Hell;
 import cn.nukkit.level.generator.Normal;
 import cn.nukkit.level.generator.biome.Biome;
 import cn.nukkit.math.NukkitMath;
@@ -381,6 +382,7 @@ public class Server {
 
         Generator.addGenerator(Flat.class, "flat", Generator.TYPE_FLAT);
         Generator.addGenerator(Normal.class, "default", Generator.TYPE_INFINITE);
+        Generator.addGenerator(Hell.class, "nether", Generator.TYPE_NETHER);
         //todo: add old generator and hell generator
 
         for (String name : ((Map<String, Object>) this.getConfig("worlds", new HashMap<>())).keySet()) {
@@ -440,7 +442,7 @@ public class Server {
                 } catch (NumberFormatException e) {
                     seed = seedString.hashCode();
                 }
-                this.generateLevel(this.netherName, seed == 0 ? System.currentTimeMillis() : seed, Generator.getGenerator("default"));
+                this.generateLevel(this.netherName, seed == 0 ? System.currentTimeMillis() : seed, Generator.getGenerator("nether"));
             }
             this.netherLevel = this.getLevelByName(this.netherName);
         }

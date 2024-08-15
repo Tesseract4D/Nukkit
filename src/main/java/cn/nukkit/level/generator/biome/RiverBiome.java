@@ -1,9 +1,9 @@
 package cn.nukkit.level.generator.biome;
 
-import cn.nukkit.level.generator.populator.PopulatorGrass;
-import cn.nukkit.level.generator.populator.PopulatorSugarcane;
-import cn.nukkit.level.generator.populator.PopulatorTallGrass;
-import cn.nukkit.level.generator.populator.PopulatorTallSugarcane;
+import cn.nukkit.level.generator.structures.StructureGrass;
+import cn.nukkit.level.generator.structures.StructureSugarcane;
+import cn.nukkit.level.generator.structures.StructureTallGrass;
+import cn.nukkit.level.generator.structures.StructureTallSugarcane;
 
 /**
  * author: MagicDroidX
@@ -14,16 +14,16 @@ public class RiverBiome extends WateryBiome {
     public RiverBiome() {
         super();
 
-        PopulatorSugarcane sugarcane = new PopulatorSugarcane();
+        StructureSugarcane sugarcane = new StructureSugarcane();
         sugarcane.setBaseAmount(6);
-        PopulatorTallSugarcane tallSugarcane = new PopulatorTallSugarcane();
+        StructureTallSugarcane tallSugarcane = new StructureTallSugarcane();
         tallSugarcane.setBaseAmount(60);
 
-        PopulatorGrass grass = new PopulatorGrass();
+        StructureGrass grass = new StructureGrass();
         grass.setBaseAmount(30);
         this.addPopulator(grass);
 
-        PopulatorTallGrass tallGrass = new PopulatorTallGrass();
+        StructureTallGrass tallGrass = new StructureTallGrass();
         tallGrass.setBaseAmount(5);
 
         this.addPopulator(tallGrass);

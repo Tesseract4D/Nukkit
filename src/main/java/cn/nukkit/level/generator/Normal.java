@@ -7,10 +7,9 @@ import cn.nukkit.level.generator.biome.Biome;
 import cn.nukkit.level.generator.biome.BiomeSelector;
 import cn.nukkit.level.generator.noise.Simplex;
 import cn.nukkit.level.generator.object.ore.OreType;
-import cn.nukkit.level.generator.populator.Populator;
-import cn.nukkit.level.generator.populator.PopulatorCaves;
-import cn.nukkit.level.generator.populator.PopulatorGroundCover;
-import cn.nukkit.level.generator.populator.PopulatorOre;
+import cn.nukkit.level.generator.structures.Structure;
+import cn.nukkit.level.generator.structures.StructureGroundCover;
+import cn.nukkit.level.generator.structures.StructureOre;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
 
@@ -30,13 +29,13 @@ public class Normal extends Generator {
         return TYPE_INFINITE;
     }
 
-    private List<Populator> populators = new ArrayList<>();
+    private List<Structure> structures = new ArrayList<>();
 
     private ChunkManager level;
 
     private NukkitRandom random;
 
-    private List<Populator> generationPopulators = new ArrayList<>();
+    private List<Structure> generationStructures = new ArrayList<>();
 
     private Simplex noiseSeaFloor;
     private Simplex noiseLand;
@@ -57,7 +56,14 @@ public class Normal extends Generator {
     private final int landHeightRange = 18; // 36 / 2
     private final int mountainHeight = 13; // 26 / 2
     private final int basegroundHeight = 3;
+    private static double[][] GAUSSIAN_KERNEL;
+    private static final double SMOOTH_SIZE = 2;
 
+    static {
+        int s = (int) SMOOTH_SIZE * 2 + 1;
+        GAUSSIAN_KERNEL = new double[s][s];
+        generateKernel();
+    }
     public Normal() {
         this(new HashMap<>());
     }
@@ -66,6 +72,20 @@ public class Normal extends Generator {
         //Nothing here. Just used for future update.
     }
 
+    private static void generateKernel() {
+
+        double bellSize = 1 / SMOOTH_SIZE;
+        double bellHeight = 2 * SMOOTH_SIZE;
+        int s = (int) SMOOTH_SIZE;
+
+        for (int sx = -s; sx <= s; ++sx) {
+            for (int sz = -s; sz <= s; ++sz) {
+                double bx = bellSize * sx;
+                double bz = bellSize * sz;
+                GAUSSIAN_KERNEL[sx + s][sz + s] = bellHeight * Math.exp(-(bx * bx + bz * bz) / 2);
+            }
+        }
+    }
     @Override
     public ChunkManager getChunkManager() {
         return level;
@@ -126,10 +146,10 @@ public class Normal extends Generator {
 
         this.selector.recalculate();
 
-        PopulatorGroundCover cover = new PopulatorGroundCover();
-        this.generationPopulators.add(cover);
+        StructureGroundCover cover = new StructureGroundCover();
+        this.generationStructures.add(cover);
 
-        PopulatorOre ores = new PopulatorOre();
+        StructureOre ores = new StructureOre();
         ores.setOreTypes(new OreType[]{
                 new OreType(new BlockOreCoal(), 20, 16, 0, 128),
                 new OreType(new BlockOreIron(), 20, 8, 0, 64),
@@ -140,7 +160,7 @@ public class Normal extends Generator {
                 new OreType(new BlockDirt(), 20, 32, 0, 128),
                 new OreType(new BlockGravel(), 10, 16, 0, 128)
         });
-        this.populators.add(ores);
+        this.structures.add(ores);
     }
 
     @Override
@@ -260,9 +280,9 @@ public class Normal extends Generator {
             }
         }
 
-        //populator chunk
-        for (Populator populator : this.generationPopulators) {
-            populator.populate(this.level, chunkX, chunkZ, this.random);
+        //structure chunk
+        for (Structure structure : this.generationStructures) {
+            structure.generate(this.level, chunkX, chunkZ, this.random);
         }
 
     }
@@ -270,8 +290,8 @@ public class Normal extends Generator {
     @Override
     public void populateChunk(int chunkX, int chunkZ) {
         this.random.setSeed(0xdeadbeef ^ (chunkX << 8) ^ chunkZ ^ this.level.getSeed());
-        for (Populator populator : this.populators) {
-            populator.populate(this.level, chunkX, chunkZ, this.random);
+        for (Structure structure : this.structures) {
+            structure.generate(this.level, chunkX, chunkZ, this.random);
         }
 
         FullChunk chunk = this.level.getChunk(chunkX, chunkZ);

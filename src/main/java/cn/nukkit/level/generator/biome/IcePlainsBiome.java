@@ -1,6 +1,6 @@
 package cn.nukkit.level.generator.biome;
 
-import cn.nukkit.level.generator.populator.PopulatorTallGrass;
+import cn.nukkit.level.generator.structures.StructureTallGrass;
 
 /**
  * author: MagicDroidX
@@ -11,7 +11,7 @@ public class IcePlainsBiome extends GrassyBiome {
     public IcePlainsBiome() {
         super();
 
-        PopulatorTallGrass tallGrass = new PopulatorTallGrass();
+        StructureTallGrass tallGrass = new StructureTallGrass();
         tallGrass.setBaseAmount(5);
 
         this.addPopulator(tallGrass);
