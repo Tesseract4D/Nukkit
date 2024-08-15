@@ -93,7 +93,7 @@ public class BlockGrass extends BlockDirt {
                     int y = random.nextRange(v - 2, v + 2);
                     int z = random.nextRange(w - 1, w + 1);
                     Block blocks = lv.getBlock(new Vector3(x, y, z));
-                    if (blocks.getId() == Block.DIRT && blocks.getDamage() == 0 && lv.getLightAt(x, y, z) >= 4 && !(blocks.getSide(1) instanceof BlockTransparent)) {
+                    if (blocks.getId() == Block.DIRT && blocks.getDamage() == 0 && lv.getLightAt(x, y, z) >= 4 && blocks.getSide(1) instanceof BlockTransparent) {
                         BlockSpreadEvent ev = new BlockSpreadEvent(blocks, this, new BlockGrass());
                         Server.getInstance().getPluginManager().callEvent(ev);
                         if (!ev.isCancelled()) {

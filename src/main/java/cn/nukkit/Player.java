@@ -123,6 +123,8 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
 
     protected long randomClientId;
 
+    protected int protocol;
+
     protected double lastMovement = 0;
 
     protected Vector3 forceMovement = null;
@@ -157,7 +159,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
 
     protected Vector3 newPosition = null;
 
-    protected int viewDistance;
+    public int viewDistance;
     protected int chunksPerTick;
     protected int spawnThreshold;
 
@@ -1775,7 +1777,14 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 }
 
                 String message;
-                if (loginPacket.protocol1 != ProtocolInfo.CURRENT_PROTOCOL) {
+                boolean flag = true;
+                for (int i : ProtocolInfo.ACCEPTED_PROTOCOLS) {
+                    if (i == loginPacket.protocol1) {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag) {
                     if (loginPacket.protocol1 < ProtocolInfo.CURRENT_PROTOCOL) {
                         message = "disconnectionScreen.outdatedClient";
 
@@ -1792,7 +1801,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                     this.close("", message, false);
                     break;
                 }
-
+                this.protocol = loginPacket.protocol1;
                 this.randomClientId = loginPacket.clientId;
 
                 this.uuid = loginPacket.clientUUID;
@@ -1951,6 +1960,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 }
 
                 UseItemPacket useItemPacket = (UseItemPacket) packet;
+                useItemPacket.decode(this.protocol);
 
                 Vector3 blockVector = new Vector3(useItemPacket.x, useItemPacket.y, useItemPacket.z);
 
@@ -3926,14 +3936,6 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
 
     public PlayerFood getFoodData() {
         return this.foodData;
-    }
-
-    //todo a lot on dimension
-
-    public void setDimension() {
-        ChangeDimensionPacket pk = new ChangeDimensionPacket();
-        pk.dimension = (byte) (getLevel().getDimension() & 0xff);
-        this.dataPacket(pk);
     }
 
     public synchronized void setLocale(Locale locale) {

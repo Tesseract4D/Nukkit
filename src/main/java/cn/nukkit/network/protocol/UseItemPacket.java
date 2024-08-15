@@ -44,7 +44,12 @@ public class UseItemPacket extends DataPacket {
         this.posX = this.getFloat();
         this.posY = this.getFloat();
         this.posZ = this.getFloat();
-        this.slot = this.getInt();
+        this.slot = -1;
+    }
+
+    public void decode(int protocol) {
+        if (protocol >= ProtocolInfo.CURRENT_PROTOCOL)
+            this.slot = this.getInt();
         this.item = this.getSlot();
     }
 
