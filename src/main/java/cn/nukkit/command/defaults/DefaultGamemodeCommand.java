@@ -1,5 +1,6 @@
 package cn.nukkit.command.defaults;
 
+import cn.nukkit.ServeProperties;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
@@ -26,7 +27,7 @@ public class DefaultGamemodeCommand extends VanillaCommand {
         }
         int gameMode = Server.getGamemodeFromString(args[0]);
         if (gameMode != -1) {
-            sender.getServer().setPropertyInt("gamemode", gameMode);
+            ServeProperties.gamemode = gameMode;
             sender.sendMessage(new TranslationContainer("commands.defaultgamemode.success", new String[]{Server.getGamemodeString(gameMode)}));
         } else {
             sender.sendMessage("Unknown game mode"); //

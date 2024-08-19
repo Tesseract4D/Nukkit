@@ -13,6 +13,7 @@ public class ObjectOre {
 
     private NukkitRandom random;
     public OreType type;
+    public int base = 1;
 
     public ObjectOre(NukkitRandom random, OreType type) {
         this.type = type;
@@ -64,7 +65,7 @@ public class ObjectOre {
                                 double sizeZ = (z + 0.5 - seedZ) / size;
                                 sizeZ *= sizeZ;
 
-                                if ((sizeX + sizeY + sizeZ) < 1 && level.getBlockIdAt(x, y, z) == 1) {
+                                if ((sizeX + sizeY + sizeZ) < 1 && level.getBlockIdAt(x, y, z) == base) {
                                     level.setBlockIdAt(x, y, z, this.type.material.getId());
                                     if (this.type.material.getDamage() != 0) {
                                         level.setBlockDataAt(x, y, z, this.type.material.getDamage());

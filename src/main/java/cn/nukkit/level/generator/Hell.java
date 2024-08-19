@@ -34,7 +34,7 @@ public class Hell extends Generator {
     private List<Structure> generationStructures = new ArrayList<>();
 
     private final int waterHeight = 16;
-    private final double emptyHeight = 48;
+    private final double emptyHeight = 56;
     private final double emptyAmplitude = 1;
     private final double density = 0.5;
     private final int bedrockDepth = 5;
@@ -111,7 +111,7 @@ public class Hell extends Generator {
     @Override
     public void populateChunk(int chunkX, int chunkZ) {
         this.random.setSeed(0xdeadbeef ^ (chunkX << 8) ^ chunkZ ^ this.level.getSeed());
-        for (Structure structure : this.generationStructures) {
+        for (Structure structure : this.structures) {
             structure.generate(this.level, chunkX, chunkZ, this.random);
         }
 

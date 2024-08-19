@@ -2,6 +2,7 @@ package cn.nukkit.block;
 
 import cn.nukkit.Player;
 import cn.nukkit.item.Item;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.sound.LeverSound;
 import cn.nukkit.redstone.Redstone;
 
@@ -74,24 +75,16 @@ public class BlockLever extends BlockFlowable {
     @Override
     public boolean place(Item item, Block block, Block target, int face, double fx, double fy, double fz, Player player) {
         if (!target.isTransparent()) {
-            int[] faces = new int[]{
-                    0,
-                    5,
-                    4,
-                    3,
-                    2,
-                    1,
-            };
             int to;
 
             if (face == 0) {
                 to = player != null ? player.getDirection() : 0;
-                this.meta = (to);
+                this.meta = (to % 2 != 1 ? 0 : 7);
             } else if (face == 1) {
                 to = player != null ? player.getDirection() : 0;
-                this.meta = (to ^ 6);
+                this.meta = (to % 2 != 1 ? 6 : 5);
             } else {
-                this.meta = faces[face];
+                this.meta = 6 - face;
             }
 
             this.getLevel().setBlock(block, this, true, true);
@@ -108,4 +101,24 @@ public class BlockLever extends BlockFlowable {
         return true;
     }
 
+    @Override
+    public int onUpdate(int type) {
+        if (type == Level.BLOCK_UPDATE_NORMAL) {
+            int side = this.getDamage();
+            if (this.isActivated()) side ^= 0x08;
+            int[] faces = new int[]{1, 4, 5, 2, 3, 0, 0, 1};
+
+            Block block = this.getSide(faces[side]);
+            if (block.isTransparent()) {
+                this.getLevel().useBreakOn(this);
+
+                return Level.BLOCK_UPDATE_NORMAL;
+            }
+        }
+        return 0;
+    }
+
+    public boolean isActivated() {
+        return (this.meta & 0x08) == 0x08;
+    }
 }

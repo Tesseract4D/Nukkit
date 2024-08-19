@@ -1,5 +1,6 @@
 package cn.nukkit.command.defaults;
 
+import cn.nukkit.ServeProperties;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
@@ -46,12 +47,12 @@ public class WhitelistCommand extends VanillaCommand {
 
                     return true;
                 case "on":
-                    sender.getServer().setPropertyBoolean("white-list", true);
+                    ServeProperties.white_list = true;
                     Command.broadcastCommandMessage(sender, new TranslationContainer("commands.whitelist.enabled"));
 
                     return true;
                 case "off":
-                    sender.getServer().setPropertyBoolean("white-list", false);
+                    ServeProperties.white_list = false;
                     Command.broadcastCommandMessage(sender, new TranslationContainer("commands.whitelist.disabled"));
 
                     return true;

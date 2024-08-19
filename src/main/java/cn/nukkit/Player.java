@@ -2439,7 +2439,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                     } else if (targetEntity instanceof Player) {
                         if ((((Player) targetEntity).getGamemode() & 0x01) > 0) {
                             break;
-                        } else if (!this.server.getPropertyBoolean("pvp") || this.server.getDifficulty() == 0) {
+                        } else if (!ServeProperties.pvp || this.server.getDifficulty() == 0) {
                             cancelled = true;
                         }
 
@@ -2658,7 +2658,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 if (textPacket.type == TextPacket.TYPE_CHAT) {
                     textPacket.message = this.removeFormat ? TextFormat.clean(textPacket.message) : textPacket.message;
                     for (String msg : textPacket.message.split("\n")) {
-                        if (!"".equals(msg.trim()) && msg.length() <= 255 && this.messageCounter-- > 0) {
+                        if (!msg.trim().isEmpty() && msg.length() <= 255 && this.messageCounter-- > 0) {
                             if (msg.startsWith("/")) { //Command
                                 PlayerCommandPreprocessEvent commandPreprocessEvent = new PlayerCommandPreprocessEvent(this, msg);
                                 if (commandPreprocessEvent.getMessage().length() > 320) {
