@@ -1,6 +1,7 @@
 package cn.nukkit.command.defaults;
 
 import cn.nukkit.ServeProperties;
+import cn.nukkit.ServerInfo;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
@@ -42,7 +43,7 @@ public class WhitelistCommand extends VanillaCommand {
             }
             switch (args[0].toLowerCase()) {
                 case "reload":
-                    sender.getServer().reloadWhitelist();
+                    sender.getServer().loadInfo();
                     Command.broadcastCommandMessage(sender, new TranslationContainer("commands.whitelist.reloaded"));
 
                     return true;
@@ -59,7 +60,7 @@ public class WhitelistCommand extends VanillaCommand {
                 case "list":
                     String result = "";
                     int count = 0;
-                    for (String player : sender.getServer().getWhitelist().getAll().keySet()) {
+                    for (String player : ServerInfo.whitelist) {
                         result += player + ", ";
                         ++count;
                     }

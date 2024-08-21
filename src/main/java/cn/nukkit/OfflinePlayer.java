@@ -58,48 +58,39 @@ public class OfflinePlayer implements IPlayer {
 
     @Override
     public boolean isOp() {
-        return this.server.isOp(this.getName().toLowerCase());
+        return ServerInfo.operators.contains(getName());
     }
 
     @Override
     public void setOp(boolean value) {
-        if (value == this.isOp()) {
+        if (value == this.isOp())
             return;
-        }
-
-        if (value) {
-            this.server.addOp(this.getName().toLowerCase());
-        } else {
-            this.server.removeOp(this.getName().toLowerCase());
-        }
+        if (value) ServerInfo.operators.add(getName());
+        else ServerInfo.operators.remove(getName());
     }
 
     @Override
     public boolean isBanned() {
-        return this.server.getNameBans().isBanned(this.getName().toLowerCase());
+        return ServerInfo.banByName.contains(this.getName());
     }
 
     @Override
     public void setBanned(boolean value) {
         if (value) {
-            this.server.getNameBans().addBan(this.getName(), null, null, null);
-        } else {
-            this.server.getNameBans().remove(this.getName());
-        }
+            ServerInfo.banByName.add(this.getName());
+        } else
+            ServerInfo.banByName.remove(this.getName());
     }
 
     @Override
     public boolean isWhitelisted() {
-        return this.server.isWhitelisted(this.getName().toLowerCase());
+        return ServerInfo.whitelist.contains(getName());
     }
 
     @Override
     public void setWhitelisted(boolean value) {
-        if (value) {
-            this.server.addWhitelist(this.getName().toLowerCase());
-        } else {
-            this.server.removeWhitelist(this.getName().toLowerCase());
-        }
+        if (value) ServerInfo.whitelist.add(getName());
+        else ServerInfo.whitelist.remove(getName());
     }
 
     @Override

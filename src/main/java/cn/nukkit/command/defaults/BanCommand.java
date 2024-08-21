@@ -1,6 +1,7 @@
 package cn.nukkit.command.defaults;
 
 import cn.nukkit.Player;
+import cn.nukkit.ServerInfo;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
@@ -40,7 +41,7 @@ public class BanCommand extends VanillaCommand {
             reason = reason.substring(0, reason.length() - 1);
         }
 
-        sender.getServer().getNameBans().addBan(name, reason, null, sender.getName());
+        ServerInfo.banByName.add(name);
 
         Player player = sender.getServer().getPlayerExact(name);
         if (player != null) {

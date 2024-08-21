@@ -53,8 +53,6 @@ import cn.nukkit.network.protocol.CraftingDataPacket;
 import cn.nukkit.network.protocol.DataPacket;
 import cn.nukkit.network.protocol.PlayerListPacket;
 import cn.nukkit.network.query.QueryHandler;
-import cn.nukkit.permission.BanEntry;
-import cn.nukkit.permission.BanList;
 import cn.nukkit.permission.DefaultPermissions;
 import cn.nukkit.permission.Permissible;
 import cn.nukkit.plugin.JavaPluginLoader;
@@ -83,16 +81,6 @@ public class Server {
     public static final String BROADCAST_CHANNEL_USERS = "nukkit.broadcast.user";
 
     public static Server instance = null;
-    public String propertiesPath;
-
-    public BanList banByName = null;
-
-    public BanList banByIP = null;
-
-    public Config operators = null;
-
-    public Config whitelist = null;
-
     public boolean isRunning = true;
 
     public boolean hasStopped = false;
@@ -198,8 +186,8 @@ public class Server {
             new File(pluginPath).mkdirs();
         }
 
-        dataPath = new File(dataPath).getAbsolutePath() + "/";
-        pluginPath = new File(pluginPath).getAbsolutePath() + "/";
+        this.dataPath = new File(dataPath).getAbsolutePath() + "/";
+        this.pluginPath = new File(pluginPath).getAbsolutePath() + "/";
 
         console = new CommandReader();
         //todo: VersionString 现在不必要
@@ -244,7 +232,6 @@ public class Server {
         config = new Config(dataPath + "nukkit.yml", Config.YAML);
 
         logger.info("Loading " + TextFormat.GREEN + "server properties" + TextFormat.WHITE + "...");
-        propertiesPath = dataPath + "server.properties";
         loadConfig();
 
         forceLanguage = (Boolean) getConfig("settings.force-language", false);
@@ -265,7 +252,7 @@ public class Server {
 
         int threshold;
         try {
-            threshold = Integer.valueOf(String.valueOf(getConfig("network.batch-threshold", 256)));
+            threshold = Integer.parseInt(String.valueOf(getConfig("network.batch-threshold", 256)));
         } catch (Exception e) {
             threshold = 256;
         }
@@ -292,12 +279,19 @@ public class Server {
         playerMetadata = new PlayerMetadataStore();
         levelMetadata = new LevelMetadataStore();
 
-        operators = new Config(dataPath + "ops.txt", Config.ENUM);
-        whitelist = new Config(dataPath + "white-list.txt", Config.ENUM);
-        banByName = new BanList(dataPath + "banned-players.json");
-        banByName.load();
-        banByIP = new BanList(dataPath + "banned-ips.json");
-        banByIP.load();
+        Field[] f = ServerInfo.class.getFields();
+        for (Field g : f) {
+            if (g.getType() == ServerInfo.class) {
+                ServerInfo.fields.put(g.getName(), g);
+                try {
+                    ((ServerInfo<String>) g.get(null)).infoName = g.getName();
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        loadInfo();
 
         maxPlayers = ServeProperties.max_players;
         setAutoSave(ServeProperties.auto_save);
@@ -307,8 +301,7 @@ public class Server {
 
 
         Nukkit.DEBUG = (int) getConfig("debug.level", 1);
-        if (logger != null)
-            logger.setLogDebug(Nukkit.DEBUG > 1);
+        logger.setLogDebug(Nukkit.DEBUG > 1);
 
         logger.info(getLanguage().translateString("nukkit.server.networkStart", new String[]{getIp().equals("") ? "*" : getIp(), String.valueOf(getPort())}));
         serverID = UUID.randomUUID();
@@ -423,7 +416,7 @@ public class Server {
     }
 
     public void loadConfig() {
-        File file = new File(propertiesPath);
+        File file = new File(dataPath + "server.properties");
         if (!file.exists()) {
             try {
                 file.createNewFile();
@@ -432,7 +425,7 @@ public class Server {
             }
             saveConfig(false);
         } else {
-            Field[] fields = ServeProperties.class.getDeclaredFields();
+            Field[] fields = ServeProperties.class.getFields();
             HashMap<String, Field> map = new HashMap<>();
             for (Field field : fields)
                 map.put(field.getName(), field);
@@ -459,8 +452,8 @@ public class Server {
     }
 
     public void saveConfig(boolean async) {
-        File file = new File(propertiesPath);
-        Field[] fields = ServeProperties.class.getDeclaredFields();
+        File file = new File(dataPath + "server.properties");
+        Field[] fields = ServeProperties.class.getFields();
         StringBuilder ct = new StringBuilder();
         try {
             for (Field field : fields)
@@ -469,6 +462,64 @@ public class Server {
             else Utils.writeFile(file, ct.toString());
         } catch (IllegalAccessException | IOException e) {
             getLogger().logException(e);
+        }
+    }
+
+    public void loadInfo() {
+        Field[] fields = ServerInfo.class.getFields();
+        for (Field field : fields)
+            if (field.getType() == ServerInfo.class)
+                loadInfo(field);
+    }
+
+    public void loadInfo(Field field) {
+        File file = new File(dataPath + field.getName() + ".txt");
+        if (!file.exists()) try {
+            file.createNewFile();
+        } catch (IOException e) {
+            MainLogger.getLogger().error("Could not create Info " + file, e);
+        }
+        else {
+            try {
+                ServerInfo<String> info = (ServerInfo<String>) field.get(null);
+                String ct = Utils.readFile(file);
+                for (String line : ct.split("\n")) {
+                    line = line.trim();
+                    if (!line.isEmpty())
+                        info.add(line);
+                }
+            } catch (IOException | IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void loadInfo(String field) {
+        loadInfo(ServerInfo.fields.get(field));
+    }
+
+    public void saveInfo(boolean async) {
+        Field[] fields = ServerInfo.class.getFields();
+        for (Field field : fields)
+            if (field.getType() == ServerInfo.class)
+                saveInfo(field, async);
+    }
+
+    public void saveInfo(String field, boolean async) {
+        saveInfo(ServerInfo.fields.get(field), async);
+    }
+
+    public void saveInfo(Field field, boolean async) {
+        File file = new File(dataPath + field.getName() + ".txt");
+        StringBuilder ct = new StringBuilder();
+        try {
+            ServerInfo<String> info = (ServerInfo<String>) field.get(null);
+            for (String s : info) ct.append(s).append("\n");
+            if (async)
+                Server.getInstance().getScheduler().scheduleAsyncTask(new FileWriteTask(file, ct.toString()));
+            else Utils.writeFile(file, ct.toString());
+        } catch (IllegalAccessException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -542,7 +593,7 @@ public class Server {
 
 
     public static void broadcastPacket(Collection<Player> players, DataPacket packet) {
-        broadcastPacket(players.stream().toArray(Player[]::new), packet);
+        broadcastPacket(players.toArray(new Player[0]), packet);
     }
 
     public static void broadcastPacket(Player[] players, DataPacket packet) {
@@ -676,13 +727,10 @@ public class Server {
             ServeProperties.difficulty = 3;
         }
 
-        banByIP.load();
-        banByName.load();
-        reloadWhitelist();
-        operators.reload();
+        loadInfo();
 
-        for (BanEntry entry : getIPBans().getEntires().values()) {
-            getNetwork().blockAddress(entry.getName(), -1);
+        for (String ip : ServerInfo.banByIP) {
+            getNetwork().blockAddress(ip, -1);
         }
 
         pluginManager.registerInterface(JavaPluginLoader.class);
@@ -737,6 +785,7 @@ public class Server {
 
             getLogger().debug("Saving properties");
             saveConfig(true);
+            saveInfo(true);
 
             getLogger().debug("Closing console");
             console.interrupt();
@@ -759,8 +808,8 @@ public class Server {
         if (ServeProperties.enable_query)
             queryHandler = new QueryHandler();
 
-        for (BanEntry entry : getIPBans().getEntires().values()) {
-            network.blockAddress(entry.getName(), -1);
+        for (String ip : ServerInfo.banByIP) {
+            getNetwork().blockAddress(ip, -1);
         }
 
         //todo send usage setting
@@ -1485,7 +1534,7 @@ public class Server {
     }
 
     public void setDefaultLevel(Level defaultLevel) {
-        if (defaultLevel == null || (isLevelLoaded(defaultLevel.getFolderName()) && defaultLevel != defaultLevel)) {
+        if (this.defaultLevel == null || (isLevelLoaded(defaultLevel.getFolderName()) && this.defaultLevel != defaultLevel)) {
             this.defaultLevel = defaultLevel;
         }
     }
@@ -1697,62 +1746,6 @@ public class Server {
         } else {
             return null;
         }
-    }
-
-    public BanList getNameBans() {
-        return banByName;
-    }
-
-    public BanList getIPBans() {
-        return banByIP;
-    }
-
-    public void addOp(String name) {
-        operators.set(name.toLowerCase(), true);
-        Player player = getPlayerExact(name);
-        if (player != null) {
-            player.recalculatePermissions();
-        }
-        operators.save(true);
-    }
-
-    public void removeOp(String name) {
-        operators.remove(name.toLowerCase());
-        Player player = getPlayerExact(name);
-        if (player != null) {
-            player.recalculatePermissions();
-        }
-        operators.save();
-    }
-
-    public void addWhitelist(String name) {
-        whitelist.set(name.toLowerCase(), true);
-        whitelist.save(true);
-    }
-
-    public void removeWhitelist(String name) {
-        whitelist.remove(name.toLowerCase());
-        whitelist.save(true);
-    }
-
-    public boolean isWhitelisted(String name) {
-        return !hasWhitelist() || operators.exists(name, true) || whitelist.exists(name, true);
-    }
-
-    public boolean isOp(String name) {
-        return operators.exists(name, true);
-    }
-
-    public Config getWhitelist() {
-        return whitelist;
-    }
-
-    public Config getOps() {
-        return operators;
-    }
-
-    public void reloadWhitelist() {
-        whitelist.reload();
     }
 
     public Map<String, List<String>> getCommandAliases() {

@@ -1,5 +1,6 @@
 package cn.nukkit.command.defaults;
 
+import cn.nukkit.ServerInfo;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
@@ -28,7 +29,7 @@ public class PardonCommand extends VanillaCommand {
             return false;
         }
 
-        sender.getServer().getNameBans().remove(args[0]);
+        ServerInfo.banByName.remove(args[0]);
 
         Command.broadcastCommandMessage(sender, new TranslationContainer("%commands.unban.success", args[0]));
 

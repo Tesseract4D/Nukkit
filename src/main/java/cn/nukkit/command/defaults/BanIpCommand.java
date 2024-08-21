@@ -1,6 +1,7 @@
 package cn.nukkit.command.defaults;
 
 import cn.nukkit.Player;
+import cn.nukkit.ServerInfo;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
@@ -86,7 +87,7 @@ public class BanIpCommand extends VanillaCommand {
     }
 
     private void processIPBan(String ip, CommandSender sender, String reason) {
-        sender.getServer().getIPBans().addBan(ip, reason, null, sender.getName());
+        ServerInfo.banByIP.add(ip);
 
         for (Player player : new ArrayList<>(sender.getServer().getOnlinePlayers().values())) {
             if (player.getAddress().equals(ip)) {
