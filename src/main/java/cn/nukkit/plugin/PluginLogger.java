@@ -59,7 +59,7 @@ public class PluginLogger implements Logger {
 
     @Override
     public void log(LogLevel level, String message) {
-        Server.getInstance().getLogger().log(level, this.pluginName + message);
+        Server.getInstance().logger.log(level, this.pluginName + message);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class PluginLogger implements Logger {
 
     @Override
     public void log(LogLevel level, String message, Throwable t) {
-        Server.getInstance().getLogger().log(level, this.pluginName + message, t);
+        Server.getInstance().logger.log(level, this.pluginName + message, t);
     }
 
 }

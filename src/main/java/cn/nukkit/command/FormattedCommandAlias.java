@@ -38,7 +38,7 @@ public class FormattedCommandAlias extends Command {
                     sender.sendMessage(TextFormat.RED + e.getMessage());
                 } else {
                     sender.sendMessage(new TranslationContainer(TextFormat.RED + "%commands.generic.exception"));
-                    MainLogger logger = sender.getServer().getLogger();
+                    MainLogger logger = sender.getServer().logger;
                     if (logger != null) {
                         logger.logException(e);
                     }

@@ -117,7 +117,7 @@ public class ServerScheduler {
             try {
                 taskMap.remove(taskId).cancel();
             } catch (RuntimeException ex) {
-                Server.getInstance().getLogger().critical("Exception while invoking onCancel", ex);
+                Server.getInstance().logger.critical("Exception while invoking onCancel", ex);
             }
         }
     }
@@ -132,7 +132,7 @@ public class ServerScheduler {
                 try {
                     taskHandler.cancel(); /* It will remove from task map automatic in next main heartbeat. */
                 } catch (RuntimeException ex) {
-                    Server.getInstance().getLogger().critical("Exception while invoking onCancel", ex);
+                    Server.getInstance().logger.critical("Exception while invoking onCancel", ex);
                 }
             }
         }
@@ -143,7 +143,7 @@ public class ServerScheduler {
             try {
                 entry.getValue().cancel();
             } catch (RuntimeException ex) {
-                Server.getInstance().getLogger().critical("Exception while invoking onCancel", ex);
+                Server.getInstance().logger.critical("Exception while invoking onCancel", ex);
             }
         }
         this.taskMap.clear();
@@ -196,8 +196,8 @@ public class ServerScheduler {
                 try {
                     taskHandler.run(currentTick);
                 } catch (Exception e) {
-                    Server.getInstance().getLogger().critical("Could not execute taskHandler " + taskHandler.getTaskName() + ": " + e.getMessage());
-                    Server.getInstance().getLogger().logException(e);
+                    Server.getInstance().logger.critical("Could not execute taskHandler " + taskHandler.getTaskName() + ": " + e.getMessage());
+                    Server.getInstance().logger.logException(e);
                 }
             }
             if (taskHandler.isRepeating()) {
@@ -207,7 +207,7 @@ public class ServerScheduler {
                 try {
                     taskMap.remove(taskHandler.getTaskId()).cancel();
                 } catch (RuntimeException ex) {
-                    Server.getInstance().getLogger().critical("Exception while invoking onCancel", ex);
+                    Server.getInstance().logger.critical("Exception while invoking onCancel", ex);
                 }
             }
         }

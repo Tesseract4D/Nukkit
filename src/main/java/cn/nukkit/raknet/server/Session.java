@@ -428,7 +428,7 @@ public class Session {
             this.sessionManager.streamEncapsulated(this, packet);
             //TODO: stream channels
         } else {
-            //this.sessionManager.getLogger().notice("Received packet before connection: "+Binary.bytesToHexString(packet.buffer));
+            //this.sessionManager.logger.notice("Received packet before connection: "+Binary.bytesToHexString(packet.buffer));
         }
     }
 

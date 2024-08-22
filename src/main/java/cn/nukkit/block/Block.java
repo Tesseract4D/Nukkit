@@ -501,7 +501,7 @@ public abstract class Block extends Position implements Metadatable, Cloneable {
                             fullList[(id << 4) | data] = (Block) constructor.newInstance(data);
                         }
                     } catch (Exception e) {
-                        Server.getInstance().getLogger().error("Error while registering " + c.getName(), e);
+                        Server.getInstance().logger.error("Error while registering " + c.getName(), e);
                         return;
                     }
 

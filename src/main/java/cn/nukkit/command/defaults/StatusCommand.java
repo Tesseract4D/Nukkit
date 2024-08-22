@@ -1,6 +1,7 @@
 package cn.nukkit.command.defaults;
 
 import cn.nukkit.Nukkit;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.level.Level;
@@ -80,12 +81,12 @@ public class StatusCommand extends VanillaCommand {
 
 
         String playerColor = TextFormat.GREEN;
-        if (((float) server.getOnlinePlayers().size() / (float) server.getMaxPlayers()) > 0.85) {
+        if (((float) server.getOnlinePlayers().size() / (float) ServerProperties.max_players) > 0.85) {
             playerColor = TextFormat.GOLD;
         }
 
         sender.sendMessage(TextFormat.GOLD + "Players: " + playerColor + server.getOnlinePlayers().size() + TextFormat.GREEN + " online, " +
-                TextFormat.RED + server.getMaxPlayers() + TextFormat.GREEN + " max. ");
+                TextFormat.RED + ServerProperties.max_players + TextFormat.GREEN + " max. ");
 
         for (Level level : server.getLevels().values()) {
             sender.sendMessage(

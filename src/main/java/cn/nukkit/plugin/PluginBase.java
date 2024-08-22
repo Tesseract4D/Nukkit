@@ -4,7 +4,6 @@ import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.command.PluginIdentifiableCommand;
-import cn.nukkit.utils.Config;
 import cn.nukkit.utils.Utils;
 import com.google.common.base.Preconditions;
 import org.yaml.snakeyaml.DumperOptions;
@@ -37,8 +36,6 @@ abstract public class PluginBase implements Plugin {
     private PluginDescription description;
 
     private File dataFolder;
-    private Config config;
-    private File configFile;
     private File file;
     private PluginLogger logger;
 
@@ -132,7 +129,6 @@ abstract public class PluginBase implements Plugin {
             this.description = description;
             this.dataFolder = dataFolder;
             this.file = file;
-            this.configFile = new File(this.dataFolder, "config.yml");
             this.logger = new PluginLogger(this);
         }
     }
@@ -206,48 +202,10 @@ abstract public class PluginBase implements Plugin {
                     return true;
                 }
             } catch (IOException e) {
-                Server.getInstance().getLogger().logException(e);
+                Server.getInstance().logger.logException(e);
             }
         }
         return false;
-    }
-
-    @Override
-    public Config getConfig() {
-        if (this.config == null) {
-            this.reloadConfig();
-        }
-        return this.config;
-    }
-
-    @Override
-    public void saveConfig() {
-        if (!this.getConfig().save()) {
-            this.getLogger().critical("Could not save config to " + this.configFile.toString());
-        }
-    }
-
-    @Override
-    public void saveDefaultConfig() {
-        if (!this.configFile.exists()) {
-            this.saveResource("config.yml", false);
-        }
-    }
-
-    @Override
-    public void reloadConfig() {
-        this.config = new Config(this.configFile);
-        InputStream configStream = this.getResource("config.yml");
-        if (configStream != null) {
-            DumperOptions dumperOptions = new DumperOptions();
-            dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-            Yaml yaml = new Yaml(dumperOptions);
-            try {
-                this.config.setDefault(yaml.loadAs(Utils.readFile(this.configFile), LinkedHashMap.class));
-            } catch (IOException e) {
-                Server.getInstance().getLogger().logException(e);
-            }
-        }
     }
 
     @Override

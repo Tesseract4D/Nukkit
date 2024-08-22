@@ -1,6 +1,7 @@
 package cn.nukkit.command.defaults;
 
 import cn.nukkit.Player;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
 
@@ -34,7 +35,7 @@ public class ListCommand extends VanillaCommand {
         }
 
         sender.sendMessage(new TranslationContainer("commands.players.list",
-                new String[]{String.valueOf(onlineCount), String.valueOf(sender.getServer().getMaxPlayers())}));
+                new String[]{String.valueOf(onlineCount), String.valueOf(ServerProperties.max_players)}));
         sender.sendMessage(online);
         return true;
     }

@@ -1,5 +1,6 @@
 package cn.nukkit.network.query;
 
+import cn.nukkit.ServerProperties;
 import cn.nukkit.Server;
 import cn.nukkit.event.server.QueryRegenerateEvent;
 import cn.nukkit.utils.Binary;
@@ -26,16 +27,16 @@ public class QueryHandler {
 
     public QueryHandler() {
         this.server = Server.getInstance();
-        this.server.getLogger().info(this.server.getLanguage().translateString("nukkit.server.query.start"));
-        String ip = this.server.getIp();
-        String addr = (!"".equals(ip)) ? ip : "0.0.0.0";
-        int port = this.server.getPort();
-        this.server.getLogger().info(this.server.getLanguage().translateString("nukkit.server.query.info", String.valueOf(port)));
+        this.server.logger.info(this.server.getLanguage().translateString("nukkit.server.query.start"));
+        String ip = ServerProperties.server_ip;
+        String addr = ip.isEmpty() ?  "0.0.0.0" :ip;
+        int port = ServerProperties.server_port;
+        this.server.logger.info(this.server.getLanguage().translateString("nukkit.server.query.info", String.valueOf(port)));
 
         this.regenerateToken();
         this.lastToken = this.token;
         this.regenerateInfo();
-        this.server.getLogger().info(this.server.getLanguage().translateString("nukkit.server.query.running", new String[]{addr, String.valueOf(port)}));
+        this.server.logger.info(this.server.getLanguage().translateString("nukkit.server.query.running", new String[]{addr, String.valueOf(port)}));
     }
 
     public void regenerateInfo() {

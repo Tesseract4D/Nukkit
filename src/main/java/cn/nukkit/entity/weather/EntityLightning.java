@@ -1,7 +1,7 @@
 package cn.nukkit.entity.weather;
 
 import cn.nukkit.Player;
-import cn.nukkit.Server;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockFire;
 import cn.nukkit.entity.Entity;
@@ -99,7 +99,7 @@ public class EntityLightning extends Entity implements EntityLightningStrike {
                         e.kill();
                     }
                 }
-                if (Server.getInstance().getDifficulty() >= 2) {
+                if (ServerProperties.difficulty >= 2) {
                     Block block = this.getLevelBlock();
                     if (block.getId() == 0 || block.getId() == Block.TALL_GRASS) {
                         BlockFire fire = new BlockFire();

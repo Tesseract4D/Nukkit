@@ -35,7 +35,7 @@ public class CommandReader extends Thread implements InterruptibleThread {
             reader.setPrompt("> ");
             instance = this;
         } catch (IOException e) {
-            Server.getInstance().getLogger().error("Unable to start Console Reader", e);
+            Server.getInstance().logger.error("Unable to start Console Reader", e);
         }
         this.setName("Console");
     }
@@ -45,7 +45,7 @@ public class CommandReader extends Thread implements InterruptibleThread {
             reader.resetPromptLine("", "", 0);
             return this.reader.readLine("> ");
         } catch (IOException e) {
-            Server.getInstance().getLogger().logException(e);
+            Server.getInstance().logger.logException(e);
             return "";
         }
     }
@@ -69,14 +69,14 @@ public class CommandReader extends Thread implements InterruptibleThread {
                     }
 
                 } catch (Exception e) {
-                    Server.getInstance().getLogger().logException(e);
+                    Server.getInstance().logger.logException(e);
                 }
 
             } else if (System.currentTimeMillis() - lastLine <= 1) {
                 try {
                     sleep(40);
                 } catch (InterruptedException e) {
-                    Server.getInstance().getLogger().logException(e);
+                    Server.getInstance().logger.logException(e);
                 }
             }
             lastLine = System.currentTimeMillis();

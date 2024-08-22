@@ -21,7 +21,7 @@ import cn.nukkit.plugin.Plugin;
  *
  *        {@code @Override}
  *         public void onRun(int currentTick){
- *             getOwner().getLogger().info("Task is executed in tick "+currentTick);
+ *             getOwner().logger.info("Task is executed in tick "+currentTick);
  *         }
  *     }
  *     </pre></p>

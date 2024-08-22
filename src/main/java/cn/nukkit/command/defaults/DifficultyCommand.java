@@ -1,6 +1,6 @@
 package cn.nukkit.command.defaults;
 
-import cn.nukkit.ServeProperties;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
@@ -33,15 +33,15 @@ public class DifficultyCommand extends VanillaCommand {
 
         int difficulty = Server.getDifficultyFromString(args[0]);
 
-        if (sender.getServer().isHardcore()) {
+        if (ServerProperties.hardcore) {
             difficulty = 3;
         }
 
         if (difficulty != -1) {
-            ServeProperties.difficulty = difficulty;
+            ServerProperties.difficulty = difficulty;
 
             SetDifficultyPacket pk = new SetDifficultyPacket();
-            pk.difficulty = sender.getServer().getDifficulty();
+            pk.difficulty = difficulty;
             Server.broadcastPacket(new ArrayList<>(sender.getServer().getOnlinePlayers().values()), pk);
 
             Command.broadcastCommandMessage(sender, new TranslationContainer("commands.difficulty.success", String.valueOf(difficulty)));

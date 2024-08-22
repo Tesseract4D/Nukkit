@@ -1,6 +1,7 @@
 package cn.nukkit.block;
 
 import cn.nukkit.Player;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.projectile.EntityArrow;
@@ -150,7 +151,7 @@ public class BlockFire extends BlockFlowable {
                                     int chance = this.getChanceOfNeighborsEncouragingFire(this.getLevel().getBlock(new Vector3(x, y, z)));
 
                                     if (chance > 0) {
-                                        int t = (chance + 40 + this.getLevel().getServer().getDifficulty() * 7) / (meta + 30);
+                                        int t = (chance + 40 + ServerProperties.difficulty * 7) / (meta + 30);
 
                                         //TODO: decrease the t if the rainfall values are high
 

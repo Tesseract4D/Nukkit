@@ -1,5 +1,6 @@
 package cn.nukkit.entity;
 
+import cn.nukkit.ServerProperties;
 import cn.nukkit.Server;
 import cn.nukkit.block.Block;
 import cn.nukkit.entity.data.ShortEntityData;
@@ -115,7 +116,7 @@ public abstract class EntityLiving extends Entity implements EntityDamageable {
             }
 
             if (e.isOnFire()) {
-                this.setOnFire(2 * this.server.getDifficulty());
+                this.setOnFire(2 * ServerProperties.difficulty);
             }
 
             double deltaX = this.x - e.x;

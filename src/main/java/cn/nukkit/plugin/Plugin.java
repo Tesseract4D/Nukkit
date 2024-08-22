@@ -2,7 +2,6 @@ package cn.nukkit.plugin;
 
 import cn.nukkit.Server;
 import cn.nukkit.command.CommandExecutor;
-import cn.nukkit.utils.Config;
 
 import java.io.File;
 import java.io.InputStream;
@@ -177,63 +176,6 @@ public interface Plugin extends CommandExecutor {
     boolean saveResource(String filename, boolean replace);
 
     boolean saveResource(String filename, String outputName, boolean replace);
-
-    /**
-     * 返回这个Nukkit插件配置文件的{@link cn.nukkit.utils.Config}对象。<br>
-     * The config file this Nukkit plugin as a {@link cn.nukkit.utils.Config} object.
-     * <p>
-     * <p>一般地，插件的配置保存在数据文件夹下的config.yml文件。<br>
-     * Normally, the plugin config is saved in the 'config.yml' file in its data folder.</p>
-     *
-     * @return 插件的配置文件。<br>The configuration of this plugin.
-     * @see cn.nukkit.plugin.Plugin#getDataFolder
-     * @since Nukkit 1.0 | Nukkit API 1.0.0
-     */
-    Config getConfig();
-
-    /**
-     * 保存这个Nukkit插件的配置文件。<br>
-     * Saves the plugin config.
-     *
-     * @see cn.nukkit.plugin.Plugin#getDataFolder
-     * @since Nukkit 1.0 | Nukkit API 1.0.0
-     */
-    void saveConfig();
-
-    /**
-     * 保存这个Nukkit插件的默认配置文件。<br>
-     * Saves the DEFAULT plugin config.
-     * <p>
-     * <p>执行这个函数时，Nukkit会在资源文件夹内寻找开发者配置好的默认配置文件config.yml，然后保存在数据文件夹。
-     * 如果数据文件夹已经有一个config.yml文件，Nukkit不会替换这个文件。<br>
-     * When this is used, Nukkit will look for the default 'config.yml' file which is configured by plugin developer
-     * and save it to the data folder. If a config.yml file exists in the data folder, Nukkit won't replace it.</p>
-     * <p>
-     * <p>这个函数通常用来在插件被加载(load)时，保存默认的配置文件。这样插件在启用(enable)时不会错误读取空的配置文件，
-     * 用户也无需从开发者处手动下载配置文件保存后再使用插件。<br>
-     * This is usually used to save the default plugin config when the plugin is LOADED .If this is used,
-     * it won't happen to load an empty config when plugin is ENABLED, and plugin users are not required to get
-     * default config from the developer and place it manually. </p>
-     *
-     * @see cn.nukkit.plugin.Plugin#getDataFolder
-     * @see cn.nukkit.plugin.Plugin#saveResource
-     * @since Nukkit 1.0 | Nukkit API 1.0.0
-     */
-    void saveDefaultConfig();
-
-    /**
-     * 重新读取这个Nukkit插件的默认配置文件。<br>
-     * Reloads the plugin config.
-     * <p>
-     * <p>执行这个函数时，Nukkit会从数据文件夹中的config.yml文件重新加载配置。
-     * 这样用户在调整插件配置后，无需重启就可以马上使用新的配置。<br>
-     * By using this, Nukkit will reload the config from 'config.yml' file, then it isn't necessary to restart
-     * for plugin user who changes the config and needs to use new config at once.</p>
-     *
-     * @see cn.nukkit.plugin.Plugin#getDataFolder
-     * @since Nukkit 1.0 | Nukkit API 1.0.0
-     */
-    void reloadConfig();
 
     /**
      * 返回运行这个插件的服务器的{@link cn.nukkit.Server}对象。<br>

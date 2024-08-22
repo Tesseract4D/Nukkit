@@ -422,12 +422,12 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.port = port;
         this.clientID = clientID;
         this.loaderId = Level.generateChunkLoaderId(this);
-        this.chunksPerTick = (int) this.server.getConfig("chunk-sending.per-tick", 4);
-        this.spawnThreshold = (int) this.server.getConfig("chunk-sending.spawn-threshold", 56);
+        this.chunksPerTick = ServerProperties.chunks_sending_per_tick;
+        this.spawnThreshold = ServerProperties.spawn_threshold;
         this.spawnPosition = null;
-        this.gamemode = this.server.getGamemode();
+        this.gamemode = ServerProperties.gamemode;
         this.setLevel(this.server.getDefaultLevel());
-        this.viewDistance = this.server.getViewDistance();
+        this.viewDistance = ServerProperties.view_distance;
         //this.newPosition = new Vector3(0, 0, 0);
         this.boundingBox = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 
@@ -1271,7 +1271,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                             revert = ev.isRevert();
 
                             if (revert) {
-                                this.server.getLogger().warning(this.getServer().getLanguage().translateString("nukkit.player.invalidMove", this.getName()));
+                                this.server.logger.warning(this.getServer().getLanguage().translateString("nukkit.player.invalidMove", this.getName()));
                             }
                         }
                     }
@@ -1334,7 +1334,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
             this.speed = new Vector3(0, 0, 0);
         }
 
-        if (!revert && (this.isFoodEnabled() || this.getServer().getDifficulty() == 0)) {
+        if (!revert && (this.isFoodEnabled() || ServerProperties.difficulty == 0)) {
             if ((this.isSurvival() || this.isAdventure())/* && !this.getRiddingOn() instanceof Entity*/) {
 
                 //UpdateFoodExpLevel
@@ -1456,7 +1456,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                         double expectedVelocity = (-this.getGravity()) / ((double) this.getDrag()) - ((-this.getGravity()) / ((double) this.getDrag())) * Math.exp(-((double) this.getDrag()) * ((double) (this.inAirTicks - this.startAirTicks)));
                         double diff = (this.speed.y - expectedVelocity) * (this.speed.y - expectedVelocity);
 
-                        if (!this.hasEffect(Effect.JUMP) && diff > 0.6 && expectedVelocity < this.speed.y && !this.server.getAllowFlight()) {
+                        if (!this.hasEffect(Effect.JUMP) && diff > 0.6 && expectedVelocity < this.speed.y && !ServerProperties.allow_flight) {
                             if (this.inAirTicks < 100) {
                                 //this.sendSettings();
                                 this.setMotion(new Vector3(0, expectedVelocity, 0));
@@ -1592,8 +1592,8 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.setExperience(exp, expLevel);
 
         this.gamemode = nbt.getInt("playerGameType") & 0x03;
-        if (this.server.getForceGamemode()) {
-            this.gamemode = this.server.getGamemode();
+        if (ServerProperties.force_gamemode) {
+            this.gamemode = ServerProperties.gamemode;
             nbt.putInt("playerGameType", this.gamemode);
         }
 
@@ -1614,7 +1614,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         //todo achievement
         nbt.putLong("lastPlayed", System.currentTimeMillis() / 1000);
 
-        if (this.server.getAutoSave()) {
+        if (ServerProperties.auto_save) {
             this.server.saveOfflinePlayerData(this.username, nbt, true);
         }
 
@@ -1700,10 +1700,10 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.dataPacket(updateAttributesPacket);
 
         SetDifficultyPacket setDifficultyPacket = new SetDifficultyPacket();
-        setDifficultyPacket.difficulty = this.server.getDifficulty();
+        setDifficultyPacket.difficulty = ServerProperties.difficulty;
         this.dataPacket(setDifficultyPacket);
 
-        this.server.getLogger().info(this.getServer().getLanguage().translateString("nukkit.player.logIn", new String[]{
+        this.server.logger.info(this.getServer().getLanguage().translateString("nukkit.player.logIn", new String[]{
                 TextFormat.AQUA + this.username + TextFormat.WHITE,
                 this.ip,
                 String.valueOf(this.port),
@@ -1762,7 +1762,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 this.setNameTag(this.username);
                 this.iusername = this.username.toLowerCase();
 
-                if (this.server.getOnlinePlayers().size() >= this.server.getMaxPlayers() && this.kick("disconnectionScreen.serverFull", false)) {
+                if (this.server.getOnlinePlayers().size() >= ServerProperties.max_players && this.kick("disconnectionScreen.serverFull", false)) {
                     break;
                 }
 
@@ -2248,7 +2248,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                             break;
                         }
 
-                        if (this.server.isHardcore()) {
+                        if (ServerProperties.hardcore) {
                             this.setBanned(true);
                             break;
                         }
@@ -2381,7 +2381,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 this.craftingType = 0;
                 Entity targetEntity = this.level.getEntity(((InteractPacket) packet).target);
                 boolean cancelled = false;
-                if (targetEntity instanceof Player && !((boolean) this.server.getConfig("pvp", true))) {
+                if (targetEntity instanceof Player && !ServerProperties.pvp) {
                     cancelled = true;
                 }
 
@@ -2391,7 +2391,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                     }
                     if (targetEntity instanceof EntityItem || targetEntity instanceof EntityArrow) {
                         this.kick("Attempting to attack an invalid entity");
-                        this.server.getLogger().warning(this.getServer().getLanguage().translateString("nukkit.player.invalidEntity", this.getName()));
+                        this.server.logger.warning(this.getServer().getLanguage().translateString("nukkit.player.invalidEntity", this.getName()));
                         break;
                     }
 
@@ -2429,7 +2429,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                     } else if (targetEntity instanceof Player) {
                         if ((((Player) targetEntity).getGamemode() & 0x01) > 0) {
                             break;
-                        } else if (!ServeProperties.pvp || this.server.getDifficulty() == 0) {
+                        } else if (!ServerProperties.pvp || ServerProperties.difficulty == 0) {
                             cancelled = true;
                         }
 
@@ -2854,7 +2854,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 Item result = craftingEventPacket.output[0];
 
                 if (!canCraft || !recipe.getResult().deepEquals(result)) {
-                    this.server.getLogger().debug("Unmatched recipe " + recipe.getId() + " from player " + this.getName() + ": expected " + recipe.getResult() + ", got " + result + ", using: " + Arrays.asList(ingredients).toString());
+                    this.server.logger.debug("Unmatched recipe " + recipe.getId() + " from player " + this.getName() + ": expected " + recipe.getResult() + ", got " + result + ", using: " + Arrays.asList(ingredients).toString());
                     this.inventory.sendContents(this);
                     break;
                 }
@@ -2879,7 +2879,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
                 }
 
                 if (!canCraft) {
-                    this.server.getLogger().debug("Unmatched recipe " + recipe.getId() + " from player " + this.getName() + ": client does not have enough items, using: " + Arrays.asList(ingredients).toString());
+                    this.server.logger.debug("Unmatched recipe " + recipe.getId() + " from player " + this.getName() + ": client does not have enough items, using: " + Arrays.asList(ingredients).toString());
                     this.inventory.sendContents(this);
                     break;
                 }
@@ -3227,7 +3227,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
 
             this.server.getPluginManager().unsubscribeFromPermission(Server.BROADCAST_CHANNEL_USERS, this);
             this.spawned = false;
-            this.server.getLogger().info(this.getServer().getLanguage().translateString("nukkit.player.logOut", new String[]{
+            this.server.logger.info(this.getServer().getLanguage().translateString("nukkit.player.logOut", new String[]{
                     TextFormat.AQUA + (this.getName() == null ? "" : this.getName()) + TextFormat.WHITE,
                     this.ip,
                     String.valueOf(this.port),
@@ -3904,7 +3904,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         batchPayload[1] = buf;
         byte[] data = Binary.appendBytes(batchPayload);
         try {
-            batch.payload = Zlib.deflate(data, Server.getInstance().networkCompressionLevel);
+            batch.payload = Zlib.deflate(data, ServerProperties.network_compression_level);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

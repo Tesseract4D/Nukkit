@@ -2,6 +2,7 @@ package cn.nukkit.event.server;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.event.HandlerList;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.plugin.PluginDescription;
@@ -50,8 +51,8 @@ public class QueryRegenerateEvent extends ServerEvent {
 
     public QueryRegenerateEvent(Server server, int timeout) {
         this.timeout = timeout;
-        this.serverName = server.getMotd();
-        this.listPlugins = (boolean) server.getConfig("settings.query-plugins", true);
+        this.serverName = ServerProperties.motd;
+        this.listPlugins = ServerProperties.query_plugins;
         this.plugins = server.getPluginManager().getPlugins().values().toArray(new Plugin[server.getPluginManager().getPlugins().values().size()]);
         List<Player> players = new ArrayList<>();
         for (Player player : server.getOnlinePlayers().values()) {
@@ -61,15 +62,15 @@ public class QueryRegenerateEvent extends ServerEvent {
         }
         this.players = players.toArray(new Player[players.size()]);
 
-        this.gameType = (server.getGamemode() & 0x01) == 0 ? "SMP" : "CMP";
+        this.gameType = ServerProperties.gamemode == 0 ? "SMP" : "CMP";
         this.version = server.getVersion();
         this.server_engine = server.getName() + " " + server.getNukkitVersion();
         this.map = server.getDefaultLevel() == null ? "unknown" : server.getDefaultLevel().getName();
         this.numPlayers = this.players.length;
-        this.maxPlayers = server.getMaxPlayers();
-        this.whitelist = server.hasWhitelist() ? "on" : "off";
-        this.port = server.getPort();
-        this.ip = server.getIp();
+        this.maxPlayers = ServerProperties.max_players;
+        this.whitelist = ServerProperties.white_list ? "on" : "off";
+        this.port = ServerProperties.server_port;
+        this.ip = ServerProperties.server_ip;
     }
 
     public int getTimeout() {

@@ -48,18 +48,18 @@ public class RegionLoader extends BaseRegionLoader {
                 table[0] = ++this.lastSector;
                 table[1] = 1;
                 this.locationTable.put(index, table);
-                MainLogger.getLogger().error("Corrupted chunk header detected");
+                MainLogger.logger.error("Corrupted chunk header detected");
             }
             return null;
         }
 
         if (length > (table[1] << 12)) {
-            MainLogger.getLogger().error("Corrupted bigger chunk detected");
+            MainLogger.logger.error("Corrupted bigger chunk detected");
             table[1] = length >> 12;
             this.locationTable.put(index, table);
             this.writeLocationIndex(index);
         } else if (compression != COMPRESSION_ZLIB && compression != COMPRESSION_GZIP) {
-            MainLogger.getLogger().error("Invalid compression type");
+            MainLogger.logger.error("Invalid compression type");
             return null;
         }
 
@@ -69,7 +69,7 @@ public class RegionLoader extends BaseRegionLoader {
         if (chunk != null) {
             return chunk;
         } else {
-            MainLogger.getLogger().error("Corrupted chunk detected");
+            MainLogger.logger.error("Corrupted chunk detected");
             return null;
         }
     }

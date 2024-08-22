@@ -1,7 +1,7 @@
 package cn.nukkit.level;
 
 import cn.nukkit.Player;
-import cn.nukkit.ServeProperties;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.Server;
 import cn.nukkit.ServerInfo;
 import cn.nukkit.block.*;
@@ -209,7 +209,7 @@ public class Level implements ChunkManager, Metadatable {
 		this.levelId = levelIdCounter++;
 		this.blockMetadata = new BlockMetadataStore(this);
 		this.server = server;
-		this.autoSave = server.getAutoSave();
+		this.autoSave = ServerProperties.auto_save;
 
 		try {
 			this.provider = provider.getConstructor(Level.class, String.class).newInstance(this, path);
@@ -217,7 +217,7 @@ public class Level implements ChunkManager, Metadatable {
 			throw new LevelException("Caused by " + Utils.getExceptionMessage(e));
 		}
 
-		this.server.getLogger().info(this.server.getLanguage().translateString("nukkit.level.preparing",
+		this.server.logger.info(this.server.getLanguage().translateString("nukkit.level.preparing",
 				TextFormat.GREEN + this.provider.getName() + TextFormat.WHITE));
 
 		this.generator = Generator.getGenerator(this.provider.getGenerator());
@@ -252,19 +252,18 @@ public class Level implements ChunkManager, Metadatable {
 
 		this.levelCurrentTick = this.provider.getCurrentTick();
 
-		this.chunkTickRadius = Math.min(this.server.getViewDistance(),
-				Math.max(1, (Integer) this.server.getConfig("chunk-ticking.tick-radius", 4)));
-		this.chunksPerTicks = (int) this.server.getConfig("chunk-ticking.per-tick", 40);
-		this.chunkGenerationQueueSize = (int) this.server.getConfig("chunk-generation.queue-size", 8);
-		this.chunkPopulationQueueSize = (int) this.server.getConfig("chunk-generation.population-queue-size", 2);
+		this.chunkTickRadius = Math.min(ServerProperties.view_distance, Math.max(1, ServerProperties.chunks_ticking_radius));
+		this.chunksPerTicks = ServerProperties.chunks_ticking_per_tick;
+		this.chunkGenerationQueueSize = ServerProperties.chunk_generation_queue_size;
+		this.chunkPopulationQueueSize = ServerProperties.chunk_population_queue_size;
 		this.chunkTickList.clear();
-		this.clearChunksOnTick = (boolean) this.server.getConfig("chunk-ticking.clear-tick-list", true);
-		this.cacheChunks = (boolean) this.server.getConfig("chunk-sending.cache-chunks", false);
+		this.clearChunksOnTick = ServerProperties.clear_chunks_on_tick;
+		this.cacheChunks = ServerProperties.chunks_sending_cache_chunks;
 
 		this.temporalPosition = new Position(0, 0, 0, this);
 		this.temporalVector = new Vector3(0, 0, 0);
 		this.tickRate = 1;
-		if (ServeProperties.nether_enabled && ServeProperties.nether_name.equals(this.folderName))
+		if (ServerProperties.nether_enabled && ServerProperties.nether_name.equals(this.folderName))
 			this.dimension = DIMENSION_NETHER;
 	}
 
@@ -464,7 +463,7 @@ public class Level implements ChunkManager, Metadatable {
 			return false;
 		}
 
-		this.server.getLogger().info(this.server.getLanguage().translateString("nukkit.level.unloading",
+		this.server.logger.info(this.server.getLanguage().translateString("nukkit.level.unloading",
 				TextFormat.GREEN + this.getName() + TextFormat.WHITE));
 		Level defaultLevel = this.server.getDefaultLevel();
 
@@ -1539,7 +1538,7 @@ public class Level implements ChunkManager, Metadatable {
 			double distance;
 			if (player.isSurvival() && !target.isBreakable(item)) {
 				ev.setCancelled();
-			} else if (!player.isOp() && (distance = this.server.getSpawnRadius()) > -1) {
+			} else if (!player.isOp() && (distance = ServerProperties.spawn_protection) > -1) {
 				Vector2 t = new Vector2(target.x, target.z);
 				Vector2 s = new Vector2(this.getSpawnLocation().x, this.getSpawnLocation().z);
 				if (!ServerInfo.operators.isEmpty() && t.distance(s) <= distance) {
@@ -1698,7 +1697,7 @@ public class Level implements ChunkManager, Metadatable {
 				ev.setCancelled();
 			}
 
-			int distance = this.server.getSpawnRadius();
+			int distance = ServerProperties.spawn_protection;
 			if (!player.isOp() && distance > -1) {
 				Vector2 t = new Vector2(target.x, target.z);
 				Vector2 s = new Vector2(this.getSpawnLocation().x, this.getSpawnLocation().z);
@@ -1789,7 +1788,7 @@ public class Level implements ChunkManager, Metadatable {
 
 		if (player != null) {
 			BlockPlaceEvent event = new BlockPlaceEvent(player, hand, block, target, item);
-			int distance = this.server.getSpawnRadius();
+			int distance = ServerProperties.spawn_protection;
 			if (!player.isOp() && distance > -1) {
 				Vector2 t = new Vector2(target.x, target.z);
 				Vector2 s = new Vector2(this.getSpawnLocation().x, this.getSpawnLocation().z);
@@ -2310,8 +2309,7 @@ public class Level implements ChunkManager, Metadatable {
 			return false;
 		}
 
-		if (!chunk.isLightPopulated() && chunk.isPopulated()
-				&& (boolean) this.getServer().getConfig("chunk-ticking.light-updates", false)) {
+		if (!chunk.isLightPopulated() && chunk.isPopulated() && ServerProperties.chunks_ticking_light_updates) {
 			this.getServer().getScheduler().scheduleAsyncTask(new LightPopulationTask(this, chunk));
 		}
 
@@ -2400,7 +2398,7 @@ public class Level implements ChunkManager, Metadatable {
 			}
 			this.provider.unloadChunk(x, z, safe);
 		} catch (Exception e) {
-			MainLogger logger = this.server.getLogger();
+			MainLogger logger = this.server.logger;
 			logger.error(this.server.getLanguage().translateString("nukkit.level.chunkUnloadError", e.toString()));
 			logger.logException(e);
 		}

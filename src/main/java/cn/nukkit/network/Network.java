@@ -73,12 +73,12 @@ public class Network {
                 interfaz.process();
             } catch (Exception e) {
                 if (Nukkit.DEBUG > 1) {
-                    this.server.getLogger().logException(e);
+                    this.server.logger.logException(e);
                 }
 
                 interfaz.emergencyShutdown();
                 this.unregisterInterface(interfaz);
-                this.server.getLogger().critical(this.server.getLanguage().translateString("nukkit.server.networkError", new String[]{interfaz.getClass().getName(), e.getMessage()}));
+                this.server.logger.critical(this.server.getLanguage().translateString("nukkit.server.networkError", new String[]{interfaz.getClass().getName(), e.getMessage()}));
             }
         }
     }
@@ -125,7 +125,7 @@ public class Network {
         try {
             data = Zlib.inflate(packet.payload, 64 * 1024 * 1024);
         } catch (Exception e) {
-            Server.getInstance().getLogger().logException(e);
+            Server.getInstance().logger.logException(e);
             return;
         }
 
@@ -159,8 +159,8 @@ public class Network {
             }
         } catch (Exception e) {
             if (Nukkit.DEBUG > 0) {
-                this.server.getLogger().debug("BatchPacket 0x" + Binary.bytesToHexString(packet.payload));
-                this.server.getLogger().logException(e);
+                this.server.logger.debug("BatchPacket 0x" + Binary.bytesToHexString(packet.payload));
+                this.server.logger.logException(e);
             }
         }
     }
@@ -171,7 +171,7 @@ public class Network {
             try {
                 return clazz.newInstance();
             } catch (Exception e) {
-                Server.getInstance().getLogger().logException(e);
+                Server.getInstance().logger.logException(e);
             }
         }
         return null;

@@ -1,5 +1,6 @@
 package cn.nukkit.command.defaults;
 
+import cn.nukkit.ServerProperties;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.event.TranslationContainer;
@@ -20,7 +21,7 @@ public class SaveOffCommand extends VanillaCommand {
         if (!this.testPermission(sender)) {
             return true;
         }
-        sender.getServer().setAutoSave(false);
+        ServerProperties.auto_save = false;
         Command.broadcastCommandMessage(sender, new TranslationContainer("commands.save.disabled"));
         return true;
     }

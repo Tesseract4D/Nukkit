@@ -62,7 +62,7 @@ public class SessionManager {
     }
 
     public ThreadedLogger getLogger() {
-        return this.server.getLogger();
+        return this.server.logger;
     }
 
     public void run() throws Exception {

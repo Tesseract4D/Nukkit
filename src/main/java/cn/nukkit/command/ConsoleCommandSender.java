@@ -86,7 +86,7 @@ public class ConsoleCommandSender implements CommandSender {
     public void sendMessage(String message) {
         message = this.getServer().getLanguage().translateString(message);
         for (String line : message.trim().split("\n")) {
-            MainLogger.getLogger().info(line);
+            MainLogger.logger.info(line);
         }
     }
 

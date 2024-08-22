@@ -2,6 +2,7 @@ package cn.nukkit.network;
 
 import cn.nukkit.Nukkit;
 import cn.nukkit.Player;
+import cn.nukkit.ServerProperties;
 import cn.nukkit.Server;
 import cn.nukkit.event.player.PlayerCreationEvent;
 import cn.nukkit.event.server.QueryRegenerateEvent;
@@ -46,7 +47,7 @@ public class RakNetInterface implements ServerInstance, AdvancedSourceInterface 
         this.server = server;
         this.identifiers = new ConcurrentHashMap<>();
 
-        this.raknet = new RakNetServer(this.server.getLogger(), this.server.getPort(), this.server.getIp().equals("") ? "0.0.0.0" : this.server.getIp());
+        this.raknet = new RakNetServer(this.server.logger, ServerProperties.server_port, ServerProperties.server_ip.isEmpty() ? "0.0.0.0" : ServerProperties.server_ip);
         this.handler = new ServerHandler(this.raknet, this);
     }
 
@@ -119,7 +120,7 @@ public class RakNetInterface implements ServerInstance, AdvancedSourceInterface 
             this.identifiers.put(player.rawHashCode(), identifier);
             this.server.addPlayer(identifier, player);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            Server.getInstance().getLogger().logException(e);
+            Server.getInstance().logger.logException(e);
         }
     }
 
@@ -136,9 +137,9 @@ public class RakNetInterface implements ServerInstance, AdvancedSourceInterface 
                     }
                 }
             } catch (Exception e) {
-                this.server.getLogger().logException(e);
+                this.server.logger.logException(e);
                 if (Nukkit.DEBUG > 1 && pk != null) {
-                    MainLogger logger = this.server.getLogger();
+                    MainLogger logger = this.server.logger;
 //                    if (logger != null) {
                     logger.debug("Packet " + pk.getClass().getName() + " 0x" + Binary.bytesToHexString(packet.buffer));
                     //logger.logException(e);

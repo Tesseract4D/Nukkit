@@ -18,12 +18,12 @@ import java.util.Date;
  */
 public class MainLogger extends ThreadedLogger {
 
-    protected File logFile;
-    protected String logStream = "";
-    protected boolean shutdown;
-    protected boolean logDebug = false;
+    public File logFile;
+    public String logStream = "";
+    public boolean shutdown;
+    public boolean logDebug = false;
 
-    protected static MainLogger logger;
+    public static MainLogger logger;
 
     public MainLogger(String logFile) {
         this(logFile, false);
@@ -46,10 +46,6 @@ public class MainLogger extends ThreadedLogger {
         }
         this.logDebug = logDebug;
         this.start();
-    }
-
-    public static MainLogger getLogger() {
-        return logger;
     }
 
     @Override
