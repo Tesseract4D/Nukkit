@@ -2,13 +2,13 @@ package cn.nukkit.level.generator;
 
 import cn.nukkit.block.*;
 import cn.nukkit.level.ChunkManager;
+import cn.nukkit.level.Level;
 import cn.nukkit.level.format.FullChunk;
 import cn.nukkit.level.generator.biome.Biome;
 import cn.nukkit.level.generator.biome.BiomeSelector;
 import cn.nukkit.level.generator.noise.Simplex;
 import cn.nukkit.level.generator.object.ore.OreType;
 import cn.nukkit.level.generator.structures.Structure;
-import cn.nukkit.level.generator.structures.StructureGroundCover;
 import cn.nukkit.level.generator.structures.StructureOre;
 import cn.nukkit.math.NukkitRandom;
 import cn.nukkit.math.Vector3;
@@ -24,43 +24,24 @@ import java.util.Map;
  */
 public class Normal extends Generator {
 
+
     @Override
     public int getId() {
         return TYPE_INFINITE;
     }
 
-    private List<Structure> structures = new ArrayList<>();
-
+    private final List<Structure> structures = new ArrayList<>();
     private ChunkManager level;
-
     private NukkitRandom random;
-
-    private List<Structure> generationStructures = new ArrayList<>();
-
-    private Simplex noiseSeaFloor;
-    private Simplex noiseLand;
-    private Simplex noiseMountains;
-    private Simplex noiseBaseGround;
-    private Simplex noiseRiver;
+    private Simplex noiseBase;
 
     private BiomeSelector selector;
-
-    private int heightOffset;
-
-    private final int seaHeight = 62;
-    private final int seaFloorHeight = 48;
-    private final int beathStartHeight = 60;
-    private final int beathStopHeight = 64;
-    private final int bedrockDepth = 5;
-    private final int seaFloorGenerateRange = 5;
-    private final int landHeightRange = 18; // 36 / 2
-    private final int mountainHeight = 13; // 26 / 2
-    private final int basegroundHeight = 3;
-    private static double[][] GAUSSIAN_KERNEL;
-    private static final double SMOOTH_SIZE = 2;
+    public final int waterHeight = 62;
+    private static final double[][] GAUSSIAN_KERNEL;
+    private static final int SMOOTH_SIZE = 2;
 
     static {
-        int s = (int) SMOOTH_SIZE * 2 + 1;
+        int s = SMOOTH_SIZE * 2 + 1;
         GAUSSIAN_KERNEL = new double[s][s];
         generateKernel();
     }
@@ -74,9 +55,9 @@ public class Normal extends Generator {
 
     private static void generateKernel() {
 
-        double bellSize = 1 / SMOOTH_SIZE;
+        double bellSize = 1d / SMOOTH_SIZE;
         double bellHeight = 2 * SMOOTH_SIZE;
-        int s = (int) SMOOTH_SIZE;
+        int s = SMOOTH_SIZE;
 
         for (int sx = -s; sx <= s; ++sx) {
             for (int sz = -s; sz <= s; ++sz) {
@@ -102,7 +83,7 @@ public class Normal extends Generator {
     }
 
     public Biome pickBiome(int x, int z) {
-        long hash = x * 2345803 ^ z * 9236449 ^ this.level.getSeed();
+        long hash = x * 2345803L ^ z * 9236449L ^ this.level.getSeed();
         hash *= hash + 223;
 
         long xNoise = hash >> 20 & 3;
@@ -123,14 +104,9 @@ public class Normal extends Generator {
         this.level = level;
         this.random = random;
         this.random.setSeed(this.level.getSeed());
-        this.noiseSeaFloor = new Simplex(this.random, 1F, 1F / 8F, 1F / 64F);
-        this.noiseLand = new Simplex(this.random, 2F, 1F / 8F, 1F / 512F);
-        this.noiseMountains = new Simplex(this.random, 4F, 1F, 1F / 500F);
-        this.noiseBaseGround = new Simplex(this.random, 4F, 1F / 4F, 1F / 64F);
-        this.noiseRiver = new Simplex(this.random, 2F, 1F, 1F / 512F);
+        this.noiseBase = new Simplex(this.random, 4F, 1F / 4F, 1F / 32F);
         this.random.setSeed(this.level.getSeed());
         this.selector = new BiomeSelector(this.random, Biome.getBiome(Biome.OCEAN));
-        this.heightOffset = random.nextRange(-5, 3);
 
         this.selector.addBiome(Biome.getBiome(Biome.OCEAN));
         this.selector.addBiome(Biome.getBiome(Biome.PLAINS));
@@ -145,9 +121,6 @@ public class Normal extends Generator {
         this.selector.addBiome(Biome.getBiome(Biome.BIRCH_FOREST));
 
         this.selector.recalculate();
-
-        StructureGroundCover cover = new StructureGroundCover();
-        this.generationStructures.add(cover);
 
         StructureOre ores = new StructureOre();
         ores.setOreTypes(new OreType[]{
@@ -165,131 +138,130 @@ public class Normal extends Generator {
 
     @Override
     public void generateChunk(int chunkX, int chunkZ) {
-        this.random.setSeed(0xdeadbeef ^ (chunkX << 8) ^ chunkZ ^ this.level.getSeed());
+        this.random.setSeed(0xdeadbeef ^ ((long) chunkX << 8) ^ chunkZ ^ this.level.getSeed());
 
-        double[][] seaFloorNoise = Generator.getFastNoise2D(this.noiseSeaFloor, 16, 16, 4, chunkX * 16, 0, chunkZ * 16);
-        double[][] landNoise = Generator.getFastNoise2D(this.noiseLand, 16, 16, 4, chunkX * 16, 0, chunkZ * 16);
-        double[][] mountainNoise = Generator.getFastNoise2D(this.noiseMountains, 16, 16, 4, chunkX * 16, 0, chunkZ * 16);
-        double[][] baseNoise = Generator.getFastNoise2D(this.noiseBaseGround, 16, 16, 4, chunkX * 16, 0, chunkZ * 16);
-        double[][] riverNoise = Generator.getFastNoise2D(this.noiseRiver, 16, 16, 4, chunkX * 16, 0, chunkZ * 16);
+        double[][][] noise = Generator.getFastNoise3D(this.noiseBase, 16, 128, 16, 4, 8, 4, chunkX * 16, 0, chunkZ * 16);
 
         FullChunk chunk = this.level.getChunk(chunkX, chunkZ);
 
-        for (int genx = 0; genx < 16; genx++) {
-            for (int genz = 0; genz < 16; genz++) {
+        HashMap<String, Biome> biomeCache = new HashMap<>();
 
-                Biome biome;
-                boolean canBaseGround = false;
-                boolean canRiver = true;
+        for (int x = 0; x < 16; ++x) {
+            for (int z = 0; z < 16; ++z) {
+                double minSum = 0;
+                double maxSum = 0;
+                double weightSum = 0;
 
-                //using a quadratic function which smooth the world
-                //y = (2.956x)^2 - 0.6,  (0 <= x <= 2)
-                double landHeightNoise = landNoise[genx][genz] + 1F;
-                landHeightNoise *= 2.956;
-                landHeightNoise = landHeightNoise * landHeightNoise;
-                landHeightNoise = landHeightNoise - 0.6F;
-                landHeightNoise = landHeightNoise > 0 ? landHeightNoise : 0;
+                Biome biome = this.pickBiome(chunkX * 16 + x, chunkZ * 16 + z);
+                chunk.setBiomeId(x, z, biome.getId());
+                double[] color = {0, 0, 0};
 
-                //generate mountains
-                double mountainHeightGenerate = mountainNoise[genx][genz] - 0.2F;
-                mountainHeightGenerate = mountainHeightGenerate > 0 ? mountainHeightGenerate : 0;
-                int mountainGenerate = (int) (mountainHeight * mountainHeightGenerate);
+                for (int sx = -SMOOTH_SIZE; sx <= SMOOTH_SIZE; sx++) {
+                    for (int sz = -SMOOTH_SIZE; sz <= SMOOTH_SIZE; sz++) {
 
-                int landHeightGenerate = (int) (landHeightRange * landHeightNoise);
-                if (landHeightGenerate > landHeightRange) {
-                    if (landHeightGenerate > landHeightRange) {
-                        canBaseGround = true;
-                    }
-                    landHeightGenerate = landHeightRange;
-                }
-
-                int genyHeight = seaFloorHeight + landHeightGenerate;
-                genyHeight += mountainGenerate;
-
-                //prepare for generate ocean, desert, and land
-                if (genyHeight < beathStartHeight) {
-                    if (genyHeight < beathStartHeight - 5) {
-                        genyHeight += (int) (seaFloorGenerateRange * seaFloorNoise[genx][genz]);
-                    }
-                    biome = Biome.getBiome(Biome.OCEAN);
-                    if (genyHeight < seaFloorHeight - seaFloorGenerateRange) {
-                        genyHeight = seaFloorHeight;
-                    }
-                    canRiver = false;
-                } else if (genyHeight <= beathStopHeight && genyHeight >= beathStartHeight) {
-                    //todo: there is no beach biome, use desert temporarily
-                    biome = Biome.getBiome(Biome.DESERT);
-                } else {
-                    biome = this.pickBiome(chunkX * 16 + genx, chunkZ * 16 + genz);
-                    if (canBaseGround) {
-                        int baseGroundHeight = (int) (landHeightRange * landHeightNoise) - landHeightRange;
-                        int baseGroundHeight2 = (int) (basegroundHeight * (baseNoise[genx][genz] + 1F));
-                        if (baseGroundHeight2 > baseGroundHeight) baseGroundHeight2 = baseGroundHeight;
-                        if (baseGroundHeight2 > mountainGenerate)
-                            baseGroundHeight2 = baseGroundHeight2 - mountainGenerate;
-                        else baseGroundHeight2 = 0;
-                        genyHeight += baseGroundHeight2;
-                    }
-                }
-                if (canRiver && genyHeight <= seaHeight - 5) {
-                    canRiver = false;
-                }
-                //generate river
-                if (canRiver) {
-                    double riverGenerate = riverNoise[genx][genz];
-                    if (riverGenerate > -0.25F && riverGenerate < 0.25F) {
-                        riverGenerate = riverGenerate > 0 ? riverGenerate : -riverGenerate;
-                        riverGenerate = 0.25F - riverGenerate;
-                        //y=x^2 * 4 - 0.0000001
-                        riverGenerate = riverGenerate * riverGenerate * 4F;
-                        //smooth again
-                        riverGenerate = riverGenerate - 0.0000001F;
-                        riverGenerate = riverGenerate > 0 ? riverGenerate : 0;
-                        genyHeight -= riverGenerate * 64;
-                        if (genyHeight < seaHeight) {
-                            biome = Biome.getBiome(Biome.RIVER);
-                            //to generate river floor
-                            if (genyHeight <= seaHeight - 8) {
-                                int genyHeight1 = seaHeight - 9 + (int) (basegroundHeight * (baseNoise[genx][genz] + 1F));
-                                int genyHeight2 = genyHeight < seaHeight - 7 ? seaHeight - 7 : genyHeight;
-                                genyHeight = genyHeight1 > genyHeight2 ? genyHeight1 : genyHeight2;
+                        double weight = GAUSSIAN_KERNEL[sx + SMOOTH_SIZE][sz + SMOOTH_SIZE];
+                        Biome adjacent;
+                        if (sx == 0 && sz == 0) {
+                            adjacent = biome;
+                        } else {
+                            String index = Level.chunkHash(chunkX * 16 + x + sx, chunkZ * 16 + z + sz);
+                            if (biomeCache.containsKey(index)) {
+                                adjacent = biomeCache.get(index);
+                            } else {
+                                adjacent = this.pickBiome(chunkX * 16 + x + sx, chunkZ * 16 + z + sz);
+                                biomeCache.put(index, adjacent);
                             }
                         }
+
+                        minSum += ((adjacent.getMinElevation() - 1) * weight);
+                        maxSum += (adjacent.getMaxElevation() * weight);
+                        int bColor = adjacent.getColor();
+                        int c = bColor >> 16;
+                        color[0] += c * c * weight;
+                        c = (bColor >> 8) & 0xff;
+                        color[1] += c * c * weight;
+                        c = bColor & 0xff;
+                        color[2] += c * c * weight;
+
+                        weightSum += weight;
                     }
                 }
-                chunk.setBiomeId(genx, genz, biome.getId());
-                //biome color
-                //todo: smooth chunk color
-                int biomecolor = biome.getColor();
-                chunk.setBiomeColor(genx, genz, (biomecolor >> 16), (biomecolor >> 8) & 0xff, (biomecolor & 0xff));
-                //generating
-                int generateHeight = genyHeight > seaHeight ? genyHeight : seaHeight;
-                for (int geny = 0; geny <= generateHeight; geny++) {
-                    if (geny <= bedrockDepth && (geny == 0 || random.nextRange(1, 5) == 1)) {
-                        chunk.setBlock(genx, geny, genz, Block.BEDROCK);
-                    } else if (geny > genyHeight) {
-                        if ((biome.getId() == Biome.ICE_PLAINS || biome.getId() == Biome.TAIGA) && geny == seaHeight) {
-                            chunk.setBlock(genx, geny, genz, Block.ICE);
-                        } else {
-                            chunk.setBlock(genx, geny, genz, Block.STILL_WATER);
-                        }
-                    } else {
-                        chunk.setBlock(genx, geny, genz, Block.STONE);
+
+                minSum /= weightSum;
+                maxSum /= weightSum;
+
+                chunk.setBiomeColor(x, z, (int) Math.sqrt(color[0] / weightSum), (int) Math.sqrt(color[1] / weightSum), (int) Math.sqrt(color[2] / weightSum));
+
+                boolean solidLand = false;
+                for (int y = 127; y >= 0; --y) {
+                    if (y == 0) {
+                        chunk.setBlockId(x, y, z, Block.BEDROCK);
+                        continue;
+                    }
+
+                    // A noiseAdjustment of 1 will guarantee ground, a noiseAdjustment of -1 will guarantee air.
+                    //effHeight = min(y - smoothHeight - minSum,
+                    double noiseAdjustment = 2 * ((maxSum - y) / (maxSum - minSum)) - 1;
+
+
+                    // To generate caves, we bring the noiseAdjustment down away from 1.
+                    double caveLevel = minSum - 10;
+                    double distAboveCaveLevel = Math.max(0, y - caveLevel); // must be positive
+
+                    noiseAdjustment = Math.min(noiseAdjustment, 0.4 + (distAboveCaveLevel / 10));
+                    double noiseValue = noise[x][z][y] + noiseAdjustment;
+
+                    if (noiseValue > 0) {
+                        chunk.setBlockId(x, y, z, Block.STONE);
+                        solidLand = true;
+                    } else if (y <= this.waterHeight && !solidLand) {
+                        chunk.setBlockId(x, y, z, Block.STILL_WATER);
                     }
                 }
             }
         }
+        buildSurface(chunk);
+    }
 
-        //structure chunk
-        for (Structure structure : this.generationStructures) {
-            structure.generate(this.level, chunkX, chunkZ, this.random);
+    public void buildSurface(FullChunk chunk) {
+        for (int x = 0; x < 16; ++x) {
+            for (int z = 0; z < 16; ++z) {
+                Biome biome = Biome.getBiome(chunk.getBiomeId(x, z));
+                Block[] cover = biome.getGroundCover();
+                if (cover != null && cover.length > 0) {
+                    int diffY = 0;
+                    if (!cover[0].isSolid()) {
+                        diffY = 1;
+                    }
+
+                    byte[] column = chunk.getBlockIdColumn(x, z);
+                    int y;
+                    for (y = 127; y > 0; --y) {
+                        if (column[y] != 0x00 && !Block.get(column[y] & 0xff).isTransparent()) {
+                            break;
+                        }
+                    }
+                    int startY = Math.min(127, y + diffY);
+                    int endY = startY - cover.length;
+                    for (y = startY; y > endY && y >= 0; --y) {
+                        Block b = cover[startY - y];
+                        if (column[y] == 0x00 && b.isSolid()) {
+                            break;
+                        }
+                        if (b.getDamage() == 0) {
+                            chunk.setBlockId(x, y, z, b.getId());
+                        } else {
+                            chunk.setBlock(x, y, z, b.getId(), b.getDamage());
+                        }
+                    }
+                }
+            }
         }
-
     }
 
     @Override
     public void populateChunk(int chunkX, int chunkZ) {
-        this.random.setSeed(0xdeadbeef ^ (chunkX << 8) ^ chunkZ ^ this.level.getSeed());
+        this.random.setSeed(0xdeadbeef ^ ((long) chunkX << 8) ^ chunkZ ^ this.level.getSeed());
         for (Structure structure : this.structures) {
             structure.generate(this.level, chunkX, chunkZ, this.random);
         }

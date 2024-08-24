@@ -1,6 +1,5 @@
-package cn.nukkit.lang;
+package cn.nukkit;
 
-import cn.nukkit.Server;
 import cn.nukkit.event.TextContainer;
 import cn.nukkit.event.TranslationContainer;
 import cn.nukkit.utils.Utils;
@@ -14,7 +13,7 @@ import java.util.Map;
  * author: MagicDroidX
  * Nukkit Project
  */
-public class BaseLang {
+public class ServerLanguage {
     public static final String FALLBACK_LANGUAGE = "eng";
 
     protected String langName;
@@ -23,15 +22,11 @@ public class BaseLang {
     protected Map<String, String> fallbackLang = new HashMap<>();
 
 
-    public BaseLang(String lang) {
-        this(lang, null);
+    public ServerLanguage(String lang) {
+        this(lang, null, FALLBACK_LANGUAGE);
     }
 
-    public BaseLang(String lang, String path) {
-        this(lang, path, FALLBACK_LANGUAGE);
-    }
-
-    public BaseLang(String lang, String path, String fallback) {
+    public ServerLanguage(String lang, String path, String fallback) {
         this.langName = lang.toLowerCase();
 
         if (path == null) {
@@ -42,8 +37,6 @@ public class BaseLang {
             this.lang = this.loadLang(path + this.langName + "/lang.ini");
             this.fallbackLang = this.loadLang(path + fallback + "/lang.ini");
         }
-
-
     }
 
     public String getName() {
@@ -60,7 +53,7 @@ public class BaseLang {
             Map<String, String> d = new HashMap<>();
             for (String line : content.split("\n")) {
                 line = line.trim();
-                if (line.equals("") || line.charAt(0) == '#') {
+                if (line.isEmpty() || line.charAt(0) == '#') {
                     continue;
                 }
                 String[] t = line.split("=");
@@ -68,15 +61,15 @@ public class BaseLang {
                     continue;
                 }
                 String key = t[0];
-                String value = "";
+                StringBuilder value = new StringBuilder();
                 for (int i = 1; i < t.length - 1; i++) {
-                    value += t[i] + "=";
+                    value.append(t[i]).append("=");
                 }
-                value += t[t.length - 1];
-                if (value.equals("")) {
+                value.append(t[t.length - 1]);
+                if (value.length() == 0) {
                     continue;
                 }
-                d.put(key, value);
+                d.put(key, value.toString());
             }
             return d;
         } catch (IOException e) {
@@ -91,7 +84,7 @@ public class BaseLang {
             Map<String, String> d = new HashMap<>();
             for (String line : content.split("\n")) {
                 line = line.trim();
-                if (line.equals("") || line.charAt(0) == '#') {
+                if (line.isEmpty() || line.charAt(0) == '#') {
                     continue;
                 }
                 String[] t = line.split("=");
@@ -99,15 +92,15 @@ public class BaseLang {
                     continue;
                 }
                 String key = t[0];
-                String value = "";
+                StringBuilder value = new StringBuilder();
                 for (int i = 1; i < t.length - 1; i++) {
-                    value += t[i] + "=";
+                    value.append(t[i]).append("=");
                 }
-                value += t[t.length - 1];
-                if (value.equals("")) {
+                value.append(t[t.length - 1]);
+                if (value.length() == 0) {
                     continue;
                 }
-                d.put(key, value);
+                d.put(key, value.toString());
             }
             return d;
         } catch (IOException e) {
@@ -120,11 +113,7 @@ public class BaseLang {
         return this.translateString(str, new String[]{}, null);
     }
 
-    public String translateString(String str, String param) {
-        return this.translateString(str, new String[]{param});
-    }
-
-    public String translateString(String str, String[] params) {
+    public String translateString(String str, String... params) {
         return this.translateString(str, params, null);
     }
 
@@ -177,9 +166,9 @@ public class BaseLang {
     }
 
     protected String parseTranslation(String text, String onlyPrefix) {
-        String newString = "";
+        StringBuilder newString = new StringBuilder();
 
-        String replaceString = null;
+        StringBuilder replaceString = null;
 
         int len = text.length();
 
@@ -191,36 +180,36 @@ public class BaseLang {
                         || (ord >= 0x41 && ord <= 0x5a) // A-Z
                         || (ord >= 0x61 && ord <= 0x7a) || // a-z
                         c == '.' || c == '-') {
-                    replaceString += String.valueOf(c);
+                    replaceString.append(c);
                 } else {
                     String t = this.internalGet(replaceString.substring(1));
                     if (t != null && (onlyPrefix == null || replaceString.indexOf(onlyPrefix) == 1)) {
-                        newString += t;
+                        newString.append(t);
                     } else {
-                        newString += replaceString;
+                        newString.append(replaceString);
                     }
                     replaceString = null;
                     if (c == '%') {
-                        replaceString = String.valueOf(c);
+                        replaceString = new StringBuilder(String.valueOf(c));
                     } else {
-                        newString += String.valueOf(c);
+                        newString.append(c);
                     }
                 }
             } else if (c == '%') {
-                replaceString = String.valueOf(c);
+                replaceString = new StringBuilder(String.valueOf(c));
             } else {
-                newString += String.valueOf(c);
+                newString.append(c);
             }
         }
 
         if (replaceString != null) {
             String t = this.internalGet(replaceString.substring(1));
             if (t != null && (onlyPrefix == null || replaceString.indexOf(onlyPrefix) == 1)) {
-                newString += t;
+                newString.append(t);
             } else {
-                newString += replaceString;
+                newString.append(replaceString);
             }
         }
-        return newString;
+        return newString.toString();
     }
 }

@@ -22,7 +22,6 @@ import cn.nukkit.event.server.QueryRegenerateEvent;
 import cn.nukkit.inventory.*;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
-import cn.nukkit.lang.BaseLang;
 import cn.nukkit.level.Level;
 import cn.nukkit.level.Position;
 import cn.nukkit.level.format.LevelProvider;
@@ -65,7 +64,10 @@ import cn.nukkit.scheduler.FileWriteTask;
 import cn.nukkit.scheduler.ServerScheduler;
 import cn.nukkit.utils.*;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.util.*;
@@ -128,7 +130,7 @@ public class Server {
     public int autoSaveTicker = 0;
     public int autoSaveTicks = 6000;
 
-    public BaseLang baseLang;
+    public ServerLanguage language;
 
     public boolean forceLanguage;
 
@@ -181,21 +183,22 @@ public class Server {
 
         if (!new File(dataPath + "server.properties").exists()) {
             logger.info(TextFormat.GREEN + "Welcome! Please choose a language first!");
+            HashSet<String> list = new HashSet<>();
             try {
                 String[] lines = Utils.readFile(getClass().getClassLoader().getResourceAsStream("lang/language.list")).split("\n");
                 for (String line : lines) {
+                    list.add(line.substring(0, 3));
                     logger.info(line);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-            String language = null;
-            while (language == null) {
-                String lang = console.readLine();
-                InputStream conf = getClass().getClassLoader().getResourceAsStream("lang/" + lang + "/lang.ini");
-                if (conf != null) {
-                    language = lang;
+            while (true) {
+                String line = console.readLine();
+                if (list.contains(line)) {
+                    ServerProperties.language = line;
+                    break;
                 }
             }
         }
@@ -203,7 +206,7 @@ public class Server {
         loadConfig();
 
         console.start();
-        baseLang = new BaseLang(ServerProperties.language);
+        language = new ServerLanguage(ServerProperties.language);
         logger.info(getLanguage().translateString("language.selected", new String[]{getLanguage().getName(), getLanguage().getLang()}));
         logger.info(getLanguage().translateString("nukkit.server.start", TextFormat.AQUA + getVersion() + TextFormat.WHITE));
 
@@ -1581,8 +1584,8 @@ public class Server {
         return true;
     }
 
-    public BaseLang getLanguage() {
-        return baseLang;
+    public ServerLanguage getLanguage() {
+        return language;
     }
 
     public boolean isLanguageForced() {

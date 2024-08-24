@@ -31,8 +31,6 @@ public class Hell extends Generator {
 
     private NukkitRandom random;
 
-    private List<Structure> generationStructures = new ArrayList<>();
-
     private final int waterHeight = 16;
     private final double emptyHeight = 56;
     private final double emptyAmplitude = 1;
@@ -101,10 +99,6 @@ public class Hell extends Generator {
                     }
                 }
             }
-        }
-
-        for (Structure structure : this.generationStructures) {
-            structure.generate(this.level, chunkX, chunkZ, this.random);
         }
     }
 

@@ -1,7 +1,5 @@
 package cn.nukkit;
 
-import cn.nukkit.lang.BaseLang;
-
 import java.util.Base64;
 import java.util.UUID;
 
@@ -34,7 +32,7 @@ public class ServerProperties {
     public static boolean enable_rcon = false;
     public static String rcon_password = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().replace("-", "").getBytes()).substring(3, 13);
     public static boolean auto_save = true;
-    public static String language = BaseLang.FALLBACK_LANGUAGE;
+    public static String language = ServerLanguage.FALLBACK_LANGUAGE;
     public static String shutdown_message = "服务器已关闭";
     public static boolean force_language = false;
     public static boolean query_plugins = true;

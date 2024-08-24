@@ -3110,11 +3110,7 @@ public class Player extends EntityHuman implements CommandSender, InventoryHolde
         this.sendMessage(message.getText());
     }
 
-    public void sendTranslation(String message) {
-        this.sendTranslation(message, new String[0]);
-    }
-
-    public void sendTranslation(String message, String[] parameters) {
+    public void sendTranslation(String message, String... parameters) {
         TextPacket pk = new TextPacket();
         if (!this.server.isLanguageForced()) {
             pk.type = TextPacket.TYPE_TRANSLATION;
